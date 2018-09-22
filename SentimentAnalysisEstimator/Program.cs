@@ -22,30 +22,26 @@ namespace SentimentAnalysisEstimator
         {
             var env = new LocalEnvironment();
             
-            BinaryClassificationContext ctx2 = new BinaryClassificationContext(env); 
+            BinaryClassificationContext ctx2 = new BinaryClassificationContext(env);
 
-            var data = TextLoader.CreateReader(env, ctx => (
+            var reader = TextLoader.CreateReader(env, ctx => (
                     label: ctx.LoadBool(0),
-                    text: ctx.LoadText(1)), hasHeader: true)
-                .Read(new MultiFileSource(TrainDataPath));
+                    text: ctx.LoadText(1)), hasHeader: true);
+
+            var traindata = reader.Read(new MultiFileSource(TrainDataPath));
             
-            var testdata = TextLoader.CreateReader(env, ctx => (
-                    label: ctx.LoadBool(0),
-                    text: ctx.LoadText(1)), hasHeader: true)
-                .Read(new MultiFileSource(TestDataPath));
-
-            var est = data.MakeNewEstimator()
+            var est = traindata.MakeNewEstimator()
                .Append(row => (
                                label: row.label,
-                               features: row.text.FeaturizeText()))
-               .Append(row => (
-                               label: row.label, 
-                               prediction: ctx2.Trainers.Sdca(row.label, row.features)));
+                               prediction: ctx2.Trainers.Sdca(row.label, row.text.FeaturizeText())));
 
-            var model = est.Fit(data);
+            var model = est.Fit(traindata);
+
+
+            var testdata = reader.Read(new MultiFileSource(TestDataPath));
 
             var predictions = model.Transform(testdata);
-
+            
             var metrics = ctx2.Evaluate(predictions, row => row.label, row => row.prediction);
 
             Console.ReadKey();
