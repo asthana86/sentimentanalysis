@@ -1,0 +1,3497 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Microsoft.ML.Transforms</name>
+    </assembly>
+    <members>
+        <member name="T:Microsoft.ML.Runtime.Data.BootstrapSampleTransform">
+            <summary>
+            This class approximates bootstrap sampling of a dataview.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.BootstrapSampleTransform.#ctor(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Data.IDataView,System.Boolean,System.Nullable{System.UInt32},System.Boolean,System.Int32)">
+            <summary>
+            Convenience constructor for public facing API.
+            </summary>
+            <param name="env">Host Environment.</param>
+            <param name="input">Input <see cref="T:Microsoft.ML.Runtime.Data.IDataView"/>. This is the output from previous transform or loader.</param>
+            <param name="complement">Whether this is the out-of-bag sample, that is, all those rows that are not selected by the transform.</param>
+            <param name="seed">The random seed. If unspecified random state will be instead derived from the environment.</param>
+            <param name="shuffleInput">Whether we should attempt to shuffle the source data. By default on, but can be turned off for efficiency.</param>
+            <param name="poolSize">When shuffling the output, the number of output rows to keep in that pool. Note that shuffling of output is completely distinct from shuffling of input.</param>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.CategoricalHashTransform">
+            <summary>
+        Encodes the categorical variable with hash-based encoding. 
+      </summary><remarks>
+        CategoricalHashOneHotVectorizer converts a categorical value into an indicator array by hashing the value and using the hash as an index in the bag.
+        If the input column is a vector, a single indicator bag is returned for it.
+      </remarks>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.CategoricalHashTransform.Arguments">
+            <summary>
+            This class is a merger of <see cref="T:Microsoft.ML.Transforms.HashTransformer.Arguments"/> and <see cref="T:Microsoft.ML.Runtime.Data.KeyToVectorTransform.Arguments"/>
+            with join option removed
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.CategoricalHashTransform.Create(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Data.IDataView,System.String,System.String,System.Int32,System.Int32,Microsoft.ML.Runtime.Data.CategoricalTransform.OutputKind)">
+            <summary>
+            A helper method to create <see cref="T:Microsoft.ML.Runtime.Data.CategoricalHashTransform"/> for public facing API.
+            </summary>
+            <param name="env">Host Environment.</param>
+            <param name="input">Input <see cref="T:Microsoft.ML.Runtime.Data.IDataView"/>. This is the output from previous transform or loader.</param>
+            <param name="name">Name of the output column.</param>
+            <param name="source">Name of the column to be transformed. If this is null '<paramref name="name"/>' will be used.</param>
+            <param name="hashBits">Number of bits to hash into. Must be between 1 and 30, inclusive.</param>
+            <param name="invertHash">Limit the number of keys used to generate the slot name to this many. 0 means no invert hashing, -1 means no limit.</param>
+            <param name="outputKind">The type of output expected.</param>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.CategoricalTransform">
+            <summary>
+        Converts the categorical value into an indicator array by building a dictionary of categories based on the data and using the id in the dictionary as the index in the array
+      </summary><remarks>
+        <para>
+        The CategoricalOneHotVectorizer transform passes through a data set, operating on text columns, to
+        build a dictionary of categories.
+        For each row, the entire text string appearing in the input column is defined as a category.</para>
+        <para>The output of this transform is an indicator vector.</para>
+        Each slot in this vector corresponds to a category in the dictionary, so its length is the size of the built dictionary.
+        <para>The CategoricalOneHotVectorizer can be applied to one or more columns, in which case it builds and uses a separate dictionary
+        for each column that it is applied to.</para>
+        
+        <para>The <see cref="T:Microsoft.ML.Transforms.CategoricalTransformOutputKind" /> produces integer values and KeyType columns.
+        The Key value is the one-based index of the slot set in the Ind/Bag options.
+        If the Key option is not found, it is assigned the value zero.
+        In the <see cref="F:Microsoft.ML.Transforms.CategoricalTransformOutputKind.Ind" />, <see cref="F:Microsoft.ML.Transforms.CategoricalTransformOutputKind.Bag" /> options are not found, they result in an all zero bit vector.
+        <see cref="F:Microsoft.ML.Transforms.CategoricalTransformOutputKind.Ind" /> and <see cref="F:Microsoft.ML.Transforms.CategoricalTransformOutputKind.Bag" /> differ simply in how the bit-vectors generated from individual slots are aggregated:
+        for Ind they are concatenated and for Bag they are added.
+        When the source column is a singleton, the Ind and Bag options are identical.</para>
+      </remarks>
+        </member>
+        <member name="F:Microsoft.ML.Runtime.Data.CategoricalTransform.OutputKind.Bag">
+            <summary>
+            Output is a bag (multi-set) vector
+            </summary>
+        </member>
+        <member name="F:Microsoft.ML.Runtime.Data.CategoricalTransform.OutputKind.Ind">
+            <summary>
+            Output is an indicator vector
+            </summary>
+        </member>
+        <member name="F:Microsoft.ML.Runtime.Data.CategoricalTransform.OutputKind.Key">
+            <summary>
+            Output is a key value
+            </summary>
+        </member>
+        <member name="F:Microsoft.ML.Runtime.Data.CategoricalTransform.OutputKind.Bin">
+            <summary>
+            Output is binary encoded
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.CategoricalTransform.Create(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Data.IDataView,System.String,System.String,Microsoft.ML.Runtime.Data.CategoricalTransform.OutputKind)">
+            <summary>
+            A helper method to create <see cref="T:Microsoft.ML.Runtime.Data.CategoricalTransform"/>.
+            </summary>
+            <param name="env">Host Environment.</param>
+            <param name="input">Input <see cref="T:Microsoft.ML.Runtime.Data.IDataView"/>. This is the output from previous transform or loader.</param>
+            <param name="name">Name of the output column.</param>
+            <param name="source">Name of the column to be transformed. If this is null '<paramref name="name"/>' will be used.</param>
+            <param name="outputKind">The type of output expected.</param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.CategoricalEstimator.#ctor(Microsoft.ML.Runtime.IHostEnvironment,System.String,System.String,Microsoft.ML.Runtime.Data.CategoricalTransform.OutputKind)">
+            A helper method to create <see cref="T:Microsoft.ML.Runtime.Data.CategoricalEstimator"/> for public facing API.
+            <param name="env">Host Environment.</param>
+            <param name="name">Name of the output column.</param>
+            <param name="source">Name of the column to be transformed. If this is null '<paramref name="name"/>' will be used.</param>
+            <param name="outputKind">The type of output expected.</param>
+        </member>
+        <member name="F:Microsoft.ML.Runtime.Data.CategoricalStaticExtensions.OneHotVectorOutputKind.Bag">
+            <summary>
+            Output is a bag (multi-set) vector
+            </summary>
+        </member>
+        <member name="F:Microsoft.ML.Runtime.Data.CategoricalStaticExtensions.OneHotVectorOutputKind.Ind">
+            <summary>
+            Output is an indicator vector
+            </summary>
+        </member>
+        <member name="F:Microsoft.ML.Runtime.Data.CategoricalStaticExtensions.OneHotVectorOutputKind.Bin">
+            <summary>
+            Output is binary encoded
+            </summary>
+        </member>
+        <member name="F:Microsoft.ML.Runtime.Data.CategoricalStaticExtensions.OneHotScalarOutputKind.Ind">
+            <summary>
+            Output is an indicator vector
+            </summary>
+        </member>
+        <member name="F:Microsoft.ML.Runtime.Data.CategoricalStaticExtensions.OneHotScalarOutputKind.Bin">
+            <summary>
+            Output is binary encoded
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.CategoricalStaticExtensions.OneHotEncoding(Microsoft.ML.Data.StaticPipe.Runtime.Scalar{System.String},Microsoft.ML.Runtime.Data.CategoricalStaticExtensions.OneHotScalarOutputKind,Microsoft.ML.Runtime.Data.KeyValueOrder,System.Int32,Microsoft.ML.Runtime.Data.ToKeyFitResult{System.ReadOnlyMemory{System.Char}}.OnFit)">
+            <summary>
+            Converts the categorical value into an indicator array by building a dictionary of categories based on the data and using the id in the dictionary as the index in the array
+            </summary>
+            <param name="input">Incoming data.</param>
+            <param name="outputKind">Specify output type of indicator array: array or binary encoded data.</param>
+            <param name="order">How Id for each value would be assigined: by occurrence or by value.</param>
+            <param name="maxItems">Maximum number of ids to keep during data scanning.</param>
+                    /// <param name="onFit">Called upon fitting with the learnt enumeration on the dataset.</param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.CategoricalStaticExtensions.OneHotEncoding(Microsoft.ML.Data.StaticPipe.Runtime.Vector{System.String},Microsoft.ML.Runtime.Data.CategoricalStaticExtensions.OneHotVectorOutputKind,Microsoft.ML.Runtime.Data.KeyValueOrder,System.Int32,Microsoft.ML.Runtime.Data.ToKeyFitResult{System.ReadOnlyMemory{System.Char}}.OnFit)">
+            <summary>
+            Converts the categorical value into an indicator array by building a dictionary of categories based on the data and using the id in the dictionary as the index in the array
+            </summary>
+            <param name="input">Incoming data.</param>
+            <param name="outputKind">Specify output type of indicator array: Multiarray, array or binary encoded data.</param>
+            <param name="order">How Id for each value would be assigined: by occurrence or by value.</param>
+            <param name="maxItems">Maximum number of ids to keep during data scanning.</param>
+            <param name="onFit">Called upon fitting with the learnt enumeration on the dataset.</param>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.CountFeatureSelectionTransform">
+            <member name="CountFeatureSelection">
+      <summary>
+        Selects the slots for which the count of non-default values is greater than or equal to a threshold.
+      </summary>
+      <remarks>
+        <para>
+          This transform uses a set of aggregators to count the number of non-default values for each slot and
+          instantiates a <see cref="T:Microsoft.ML.Runtime.Data.DropSlotsTransform" /> to actually drop the slots.
+          This transform is useful when applied together with a <see cref="T:Microsoft.ML.Transforms.CategoricalHashOneHotVectorizer" />. 
+          The count feature selection can remove those features generated by the hash transform that have no data in the examples.
+        </para>
+      </remarks>
+    </member>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.CountFeatureSelectionTransform.Create(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Data.IDataView,System.Int64,System.String[])">
+            <summary>
+            A helper method to create CountFeatureSelection transform for public facing API.
+            </summary>
+            <param name="env">Host Environment.</param>
+            <param name="input">Input <see cref="T:Microsoft.ML.Runtime.Data.IDataView"/>. This is the output from previous transform or loader.</param>
+            <param name="count">If the count of non-default values for a slot is greater than or equal to this threshold, the slot is preserved.</param>
+            <param name="columns">Columns to use for feature selection.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.CountFeatureSelectionTransform.Create(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Data.CountFeatureSelectionTransform.Arguments,Microsoft.ML.Runtime.Data.IDataView)">
+            <summary>
+            Create method corresponding to SignatureDataTransform.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.CountFeatureSelectionUtils.Train(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Data.IDataView,System.String[],System.Int32[]@)">
+            <summary>
+            Returns the feature selection scores for each slot of each column.
+            </summary>
+            <param name="env">The host environment.</param>
+            <param name="input">The input dataview.</param>
+            <param name="columns">The columns for which to compute the feature selection scores.</param>
+            <param name="colSizes">Outputs an array containing the vector sizes of the input columns</param>
+            <returns>A list of scores.</returns>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.SignatureFourierDistributionSampler">
+            <summary>
+            Signature for an IFourierDistributionSampler constructor.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.LpNormNormalizerTransform">
+            <summary>
+            Lp-Norm (vector/row-wise) normalization transform. Has the following two set of arguments:
+            1- Lp-Norm normalizer arguments:
+               Normalize rows individually by rescaling them to unit norm (L2, L1 or LInf).
+               Performs the following operation on a vector X:
+                    Y = (X - M) / D, where M is mean and D is either L2 norm, L1 norm or LInf norm.
+               Scaling inputs to unit norms is a common operation for text classification or clustering.
+            2- Global contrast normalization (GCN) arguments:
+               Performs the following operation on a vector X:
+                    Y = (s * X - M) / D, where s is a scale, M is mean and D is either L2 norm or standard deviation.
+               Usage examples and Matlab code:
+               <a href="https://www.cs.stanford.edu/~acoates/papers/coatesleeng_aistats_2011.pdf">https://www.cs.stanford.edu/~acoates/papers/coatesleeng_aistats_2011.pdf</a>.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.LpNormNormalizerTransform.NormalizerKind">
+            <summary>
+            The kind of unit norm vectors are rescaled to. This enumeration is serialized.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.LpNormNormalizerTransform.CreateGlobalContrastNormalizer(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Data.IDataView,System.String,System.String,System.Boolean,System.Boolean,System.Single)">
+            <summary>
+            A helper method to create GlobalContrastNormalizer transform for public facing API.
+            </summary>
+            <param name="env">Host Environment.</param>
+            <param name="input">Input <see cref="T:Microsoft.ML.Runtime.Data.IDataView"/>. This is the output from previous transform or loader.</param>
+            <param name="name">Name of the output column.</param>
+            <param name="source">Name of the column to be transformed. If this is null '<paramref name="name"/>' will be used.</param>
+            <param name="subMean">Subtract mean from each value before normalizing.</param>
+            <param name="useStdDev">Normalize by standard deviation rather than L2 norm.</param>
+            <param name="scale">Scale features by this value.</param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.LpNormNormalizerTransform.#ctor(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Data.LpNormNormalizerTransform.GcnArguments,Microsoft.ML.Runtime.Data.IDataView)">
+            <summary>
+            Public constructor corresponding to SignatureDataTransform.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.LpNormNormalizerTransform.CreateLpNormNormalizer(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Data.IDataView,System.String,System.String,Microsoft.ML.Runtime.Data.LpNormNormalizerTransform.NormalizerKind,System.Boolean)">
+            <summary>
+            A helper method to create LpNormNormalizer transform for public facing API.
+            </summary>
+            <param name="env">Host Environment.</param>
+            <param name="input">Input <see cref="T:Microsoft.ML.Runtime.Data.IDataView"/>. This is the output from previous transform or loader.</param>
+            <param name="name">Name of the output column.</param>
+            <param name="source">Name of the column to be transformed. If this is null '<paramref name="name"/>' will be used.</param>
+            <param name="normKind">The norm to use to normalize each sample.</param>
+            <param name="subMean">Subtract mean from each value before normalizing.</param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.LpNormNormalizerTransform.StdDev(System.Single[],System.Int32,System.Int32)">
+            <summary>
+            Compute Standard Deviation. In case of both subMean and useStd are true, we technically need to compute variance
+            based on centered values (i.e. after subtracting the mean). But since the centered
+            values mean is approximately zero, we can use variance of non-centered values.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.LpNormNormalizerTransform.StdDev(System.Single[],System.Int32,System.Int32,System.Single)">
+            <summary>
+            Compute Standard Deviation.
+            We have two overloads of StdDev instead of one with <see cref="T:System.Nullable`1"/> mean for perf reasons.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.LpNormNormalizerTransform.L2Norm(System.Single[],System.Int32,System.Single)">
+            <summary>
+            Compute L2-norm. L2-norm computation doesn't subtract the mean from the source values.
+            However, we substract the mean here in case subMean is true (if subMean is false, mean is zero).
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.LpNormNormalizerTransform.L1Norm(System.Single[],System.Int32,System.Single)">
+            <summary>
+            Compute L1-norm. L1-norm computation doesn't subtract the mean from the source values.
+            However, we substract the mean here in case subMean is true (if subMean is false, mean is zero).
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.LpNormNormalizerTransform.LInfNorm(System.Single[],System.Int32,System.Single)">
+            <summary>
+            Compute LInf-norm. LInf-norm computation doesn't subtract the mean from the source values.
+            However, we substract the mean here in case subMean is true (if subMean is false, mean is zero).
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.GroupTransform">
+             <summary>
+             This transform essentially performs the following SQL-like operation:
+             SELECT GroupKey1, GroupKey2, ... GroupKeyK, LIST(Value1), LIST(Value2), ... LIST(ValueN)
+             FROM Data
+             GROUP BY GroupKey1, GroupKey2, ... GroupKeyK.
+            
+             It assumes that the group keys are contiguous (if a new group key sequence is encountered, the group is over).
+             The GroupKeyN and ValueN columns can be of any primitive types. The code requires that every raw type T of the group key column
+             is an <see cref="T:System.IEquatable`1"/>, which is currently true for all existing primitive types.
+             The produced ValueN columns will be variable-length vectors of the original value column types.
+            
+             The order of ValueN entries in the lists is preserved.
+            
+             Example:
+             User Item
+             Pete Book
+             Tom  Table
+             Tom  Kitten
+             Pete Chair
+             Pete Cup
+            
+             Result:
+             User Item
+             Pete [Book]
+             Tom  [Table, Kitten]
+             Pete [Chair, Cup]
+             </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.GroupTransform.#ctor(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Data.IDataView,System.String,System.String[])">
+            <summary>
+            Convenience constructor for public facing API.
+            </summary>
+            <param name="env">Host Environment.</param>
+            <param name="input">Input <see cref="T:Microsoft.ML.Runtime.Data.IDataView"/>. This is the output from previous transform or loader.</param>
+            <param name="groupKey">Columns to group by</param>
+            <param name="columns">Columns to group together</param>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.GroupTransform.GroupSchema">
+             <summary>
+             For group columns, the schema information is intact.
+            
+             For keep columns, the type is Vector of original type and variable length.
+             The only metadata preserved is the KeyNames and IsNormalized.
+            
+             All other columns are dropped.
+             </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.GroupTransform.Cursor">
+             <summary>
+             This cursor will create two cursors on the input data view:
+             - The leading cursor will activate all the group columns, and will advance until it hits the end of the contiguous group.
+             - The trailing cursor will activate all the requested columns, and will go through the group
+                 (as identified by the leading cursor), and aggregate the keep columns.
+            
+             The getters are as follows:
+             - The group column getters are taken directly from the trailing cursor.
+             - The keep column getters are provided by the aggregators.
+             </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.GroupTransform.Cursor.GroupKeyColumnChecker">
+            <summary>
+            This class keeps track of the previous group key and tests the current group key against the previous one.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.GroupTransform.Cursor.KeepColumnAggregator">
+            <summary>
+            This class handles the aggregation of one 'keep' column into a vector. It wraps around an <see cref="T:Microsoft.ML.Runtime.Data.IRow"/>'s
+            column, reads the data and aggregates.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.HashJoinTransform">
+            <summary>
+            This transform hashes its input columns. Each column is hashed separately, and within each
+            column there is an option to specify which slots should be hashed together into one output slot.
+            This transform can be applied either to single valued columns or to known length vector columns.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.HashJoinTransform.ColumnInfoEx.GetItemType(System.Int32)">
+            <summary>
+            Constructs the correct KeyType for the given hash bits.
+            Because of array size limitation, if hashBits = 31, the key type is not contiguous (not transformable into indicator array)
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.HashJoinTransform.#ctor(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Data.IDataView,System.String,System.String,System.Boolean,System.Int32)">
+            <summary>
+            Convenience constructor for public facing API.
+            </summary>
+            <param name="env">Host Environment.</param>
+            <param name="input">Input <see cref="T:Microsoft.ML.Runtime.Data.IDataView"/>. This is the output from previous transform or loader.</param>
+            <param name="name">Name of the output column.</param>
+            <param name="source">Name of the column to be transformed. If this is null '<paramref name="name"/>' will be used.</param>
+            <param name="join">Whether the values need to be combined for a single hash.</param>
+            <param name="hashBits">Number of bits to hash into. Must be between 1 and 31, inclusive.</param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.HashJoinTransform.#ctor(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Data.HashJoinTransform.Arguments,Microsoft.ML.Runtime.Data.IDataView)">
+            <summary>
+        Converts multiple column values into hashes. 
+        This transform accepts both numeric and text inputs, both single and vector-valued columns. 
+      </summary><remarks>
+        This transform can be helpful for ranking and cross-validation. In the case of ranking, where the GroupIdColumn column is required,
+        and needs to be of a key type you can use the <see cref="T:Microsoft.ML.Transforms.CategoricalHashOneHotVectorizer" /> to hash the text value of a single GroupID column into a key value.
+        If the GroupID is the combination of the values from multiple columns, you can use the HashConverter to hash multiple text columns into one key column. 
+        Similarly with CrossValidator and the StratificationColumn. 
+      </remarks>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.HashJoinTransform.ComposeGetterOneToOne``1(Microsoft.ML.Runtime.Data.IRow,System.Int32)">
+            <summary>
+            Getter generator for inputs of type <typeparamref name="TSrc"/>
+            </summary>
+            <typeparam name="TSrc">Input type. Must be a non-vector</typeparam>
+            <param name="input">Row inout</param>
+            <param name="iinfo">Index of the getter</param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.HashJoinTransform.ComposeGetterVecToVec``1(Microsoft.ML.Runtime.Data.IRow,System.Int32)">
+            <summary>
+            Getter generator for inputs of type <typeparamref name="TSrc"/>, where output type is a vector of hashes
+            </summary>
+            <typeparam name="TSrc">Input type. Must be a vector</typeparam>
+            <param name="input">Row input</param>
+            <param name="iinfo">Index of the getter</param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.HashJoinTransform.ComposeGetterVecToOne``1(Microsoft.ML.Runtime.Data.IRow,System.Int32)">
+            <summary>
+            Getter generator for inputs of type <typeparamref name="TSrc"/>, where output type is a single hash
+            </summary>
+            <typeparam name="TSrc">Input type. Must be a vector</typeparam>
+            <param name="input">Row input</param>
+            <param name="iinfo">Index of the getter</param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.HashJoinTransform.ComposeHashDelegate``1">
+            <summary>
+            Generic hash function
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.HashJoinTransform.ComposeFloatHashDelegate">
+            <summary>
+            Generate a specialized hash function for floats
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.HashJoinTransform.ComposeDoubleHashDelegate">
+            <summary>
+            Generate a specialized hash function for doubles
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.KeyToBinaryVectorTransform.Mapper.MakeGetterOne(Microsoft.ML.Runtime.Data.IRow,System.Int32)">
+            <summary>
+            This is for the scalar case.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.KeyToBinaryVectorTransform.Mapper.MakeGetterInd(Microsoft.ML.Runtime.Data.IRow,System.Int32)">
+            <summary>
+            This is for the indicator case - vector input and outputs should be concatenated.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.KeyToBinaryVectorExtensions">
+            <summary>
+            Extension methods for the static-pipeline over <see cref="T:Microsoft.ML.Data.StaticPipe.Runtime.PipelineColumn"/> objects.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.KeyToBinaryVectorExtensions.ToBinaryVector``2(Microsoft.ML.Data.StaticPipe.Runtime.Key{``0,``1})">
+            <summary>
+            Takes a column of key type of known cardinality and produces a vector of bits representing the key in binary form.
+            The first value is encoded as all zeros and missing values are encoded as all ones.
+            In the case where a vector has multiple keys, the encoded values are concatenated.
+            Number of bits per key is determined as the number of bits needed to represent the cardinality of the keys plus one.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.KeyToBinaryVectorExtensions.ToBinaryVector``2(Microsoft.ML.Data.StaticPipe.Runtime.Vector{Microsoft.ML.Data.StaticPipe.Runtime.Key{``0,``1}})">
+            <summary>
+            Takes a column of key type of known cardinality and produces a vector of bits representing the key in binary form.
+            The first value is encoded as all zeros and missing values are encoded as all ones.
+            In the case where a vector has multiple keys, the encoded values are concatenated.
+            Number of bits per key is determined as the number of bits needed to represent the cardinality of the keys plus one.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.KeyToBinaryVectorExtensions.ToBinaryVector``2(Microsoft.ML.Data.StaticPipe.Runtime.VarVector{Microsoft.ML.Data.StaticPipe.Runtime.Key{``0,``1}})">
+            <summary>
+            Takes a column of key type of known cardinality and produces a vector of bits representing the key in binary form.
+            The first value is encoded as all zeros and missing values are encoded as all ones.
+            In the case where a vector has multiple keys, the encoded values are concatenated.
+            Number of bits per key is determined as the number of bits needed to represent the cardinality of the keys plus one.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.KeyToBinaryVectorExtensions.ToBinaryVector``1(Microsoft.ML.Data.StaticPipe.Runtime.Key{``0})">
+            <summary>
+            Takes a column of key type of known cardinality and produces a vector of bits representing the key in binary form.
+            The first value is encoded as all zeros and missing values are encoded as all ones.
+            In the case where a vector has multiple keys, the encoded values are concatenated.
+            Number of bits per key is determined as the number of bits needed to represent the cardinality of the keys plus one.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.KeyToBinaryVectorExtensions.ToBinaryVector``1(Microsoft.ML.Data.StaticPipe.Runtime.Vector{Microsoft.ML.Data.StaticPipe.Runtime.Key{``0}})">
+            <summary>
+            Takes a column of key type of known cardinality and produces a vector of bits representing the key in binary form.
+            The first value is encoded as all zeros and missing values are encoded as all ones.
+            In the case where a vector has multiple keys, the encoded values are concatenated.
+            Number of bits per key is determined as the number of bits needed to represent the cardinality of the keys plus one.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.KeyToBinaryVectorExtensions.ToBinaryVector``1(Microsoft.ML.Data.StaticPipe.Runtime.VarVector{Microsoft.ML.Data.StaticPipe.Runtime.Key{``0}})">
+            <summary>
+            Takes a column of key type of known cardinality and produces a vector of bits representing the key in binary form.
+            The first value is encoded as all zeros and missing values are encoded as all ones.
+            In the case where a vector has multiple keys, the encoded values are concatenated.
+            Number of bits per key is determined as the number of bits needed to represent the cardinality of the keys plus one.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.LearnerFeatureSelectionTransform">
+            <summary>
+            Selects the slots for which the absolute value of the corresponding weight in a linear learner
+            is greater than a threshold.
+            Instantiates a DropSlots transform to actually drop the slots.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.LearnerFeatureSelectionTransform.Create(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Data.LearnerFeatureSelectionTransform.Arguments,Microsoft.ML.Runtime.Data.IDataView)">
+            <summary>
+            Create method corresponding to SignatureDataTransform.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.LearnerFeatureSelectionTransform.Train(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Data.IDataView,Microsoft.ML.Runtime.Data.LearnerFeatureSelectionTransform.Arguments,Microsoft.ML.Runtime.Data.VBuffer{System.Single}@)">
+            <summary>
+            Returns a score for each slot of the features column.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.LoadTransform">
+            <summary>
+            Load specific transforms from the specified model file. Allows one to 'cherry pick' transforms from
+            a serialized chain, or to apply a pre-trained transform to a different (but still compatible) data view.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.LoadTransform.Create(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Data.IDataView,System.String,System.String[],System.Boolean)">
+            <summary>
+            A helper method to create <see cref="T:Microsoft.ML.Runtime.Data.LoadTransform"/> for public facing API.
+            </summary>
+            <param name="env">Host Environment.</param>
+            <param name="input">Input <see cref="T:Microsoft.ML.Runtime.Data.IDataView"/>. This is the output from previous transform or loader.</param>
+            <param name="modelFile">Model file to load the transforms from.</param>
+            <param name="tag">The tags (comma-separated) to be loaded (or omitted, if complement is true).</param>
+            <param name="complement">Whether to load all transforms except those marked by tags.</param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.MissingValueIndicatorTransform.#ctor(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Data.MissingValueIndicatorTransform.Arguments,Microsoft.ML.Runtime.Data.IDataView)">
+            <summary>
+            Public constructor corresponding to SignatureDataTransform.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.MutualInformationFeatureSelectionTransform">
+            <summary>
+        Selects the top k slots across all specified columns ordered by their mutual information with the label column.
+      </summary><remarks>
+        <para>
+          The mutual information of two random variables X and Y is a measure of the mutual dependence between the variables.
+          Formally, the mutual information can be written as:
+        </para>
+        <para>I(X;Y) = E[log(p(x,y)) - log(p(x)) - log(p(y))]</para>
+        <para>where the expectation is taken over the joint distribution of X and Y. 
+        Here p(x,y) is the joint probability density function of X and Y, p(x) and p(y) are the marginal probability density functions of X and Y respectively. 
+        In general, a higher mutual information between the dependent variable (or label) and an independent variable (or feature) means 
+        that the label has higher mutual dependence over that feature.
+        It keeps the top SlotsInOutput features with the largest mutual information with the label.
+        </para>
+      </remarks>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.MutualInformationFeatureSelectionTransform.Create(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Data.IDataView,System.String,System.Int32,System.Int32,System.String[])">
+            <summary>
+            A helper method to create <see cref="T:Microsoft.ML.Runtime.Data.IDataTransform"/> for selecting the top k slots ordered by their mutual information.
+            </summary>
+            <param name="env">Host Environment.</param>
+            <param name="input">Input <see cref="T:Microsoft.ML.Runtime.Data.IDataView"/>. This is the output from previous transform or loader.</param>
+            <param name="labelColumn">Column to use for labels.</param>
+            <param name="slotsInOutput">The maximum number of slots to preserve in output.</param>
+            <param name="numBins">Max number of bins for R4/R8 columns, power of 2 recommended.</param>
+            <param name="columns">Columns to use for feature selection.</param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.MutualInformationFeatureSelectionTransform.Create(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Data.MutualInformationFeatureSelectionTransform.Arguments,Microsoft.ML.Runtime.Data.IDataView)">
+            <summary>
+            Create method corresponding to SignatureDataTransform.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.MutualInformationFeatureSelectionTransform.ComputeThreshold(System.Single[][],System.Int32,System.Int32@)">
+            <summary>
+            Computes the threshold for the scores such that the top k slots are preserved.
+            If there are less than k scores greater than zero, the threshold is set to zero and
+            the tiedScoresToKeep is set to zero, so that we only keep scores strictly greater than zero.
+            </summary>
+            <param name="scores">The score for each column and each slot.</param>
+            <param name="topk">How many slots to preserve.</param>
+            <param name="tiedScoresToKeep">If there are ties, how many of them to keep.</param>
+            <returns>The threshold.</returns>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.MutualInformationFeatureSelectionUtils.Train(Microsoft.ML.Runtime.IHost,Microsoft.ML.Runtime.Data.IDataView,System.String,System.String[],System.Int32)">
+            <summary>
+            Returns the feature selection scores for each slot of each column.
+            </summary>
+            <param name="host">The host.</param>
+            <param name="input">The input dataview.</param>
+            <param name="labelColumnName">The label column.</param>
+            <param name="columns">The columns for which to compute the feature selection scores.</param>
+            <param name="numBins">The number of bins to use for numeric features.</param>
+            <returns>A list of scores for each column and each slot.</returns>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.MutualInformationFeatureSelectionUtils.Impl.ComputeMutualInformation(Microsoft.ML.Runtime.Data.Transposer,System.Int32)">
+            <summary>
+            Computes the mutual information for one column.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.MutualInformationFeatureSelectionUtils.Impl.ComputeMutualInformation``1(Microsoft.ML.Runtime.Data.Transposer,System.Int32,Microsoft.ML.Runtime.Data.MutualInformationFeatureSelectionUtils.Impl.Mapper{``0})">
+            <summary>
+            Computes the mutual information for one column.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.MutualInformationFeatureSelectionUtils.Impl.ComputeMutualInformation(Microsoft.ML.Runtime.Data.VBuffer{System.Int32}@,System.Int32,System.Int32)">
+            <summary>
+            Computes the mutual information for one slot.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.MutualInformationFeatureSelectionUtils.Impl.FillTable(Microsoft.ML.Runtime.Data.VBuffer{System.Int32}@,System.Int32,System.Int32)">
+            <summary>
+            Fills the contingency table.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.MutualInformationFeatureSelectionUtils.Impl.BinKeys``1(Microsoft.ML.Runtime.Data.ColumnType)">
+            <summary>
+            Maps from keys to ints.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.MutualInformationFeatureSelectionUtils.Impl.BinInts(Microsoft.ML.Runtime.Data.VBuffer{System.Int32}@,Microsoft.ML.Runtime.Data.VBuffer{System.Int32}@,System.Int32,System.Int32@,System.Int32@)">
+            <summary>
+            Maps Ints.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.MutualInformationFeatureSelectionUtils.Impl.BinSingles(Microsoft.ML.Runtime.Data.VBuffer{System.Single}@,Microsoft.ML.Runtime.Data.VBuffer{System.Int32}@,System.Int32,System.Int32@,System.Int32@)">
+            <summary>
+            Maps from Singles to ints. NaNs (and only NaNs) are mapped to the first bin.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.MutualInformationFeatureSelectionUtils.Impl.BinDoubles(Microsoft.ML.Runtime.Data.VBuffer{System.Double}@,Microsoft.ML.Runtime.Data.VBuffer{System.Int32}@,System.Int32,System.Int32@,System.Int32@)">
+            <summary>
+            Maps from Doubles to ints. NaNs (and only NaNs) are mapped to the first bin.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.MutualInformationFeatureSelectionUtils.CreateVectorMapper``2(Microsoft.ML.Runtime.Data.ValueMapper{``0,``1})">
+            <summary>
+            Given a mapper from T to int, creates a mapper from VBuffer{T} to VBuffer&lt;int&gt;.
+            Assumes that the mapper maps default(TSrc) to default(TDst) so that the returned mapper preserves sparsity.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.NADropTransform">
+            <member name="NADrop">
+      <summary>
+        Removes missing values from vector type columns.
+      </summary>
+      <seealso cref="T:Microsoft.ML.Runtime.Data.MetadataUtils.Kinds.HasMissingValues" />
+    </member>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.NADropTransform.#ctor(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Data.IDataView,System.String,System.String)">
+            <summary>
+            Convenience constructor for public facing API.
+            </summary>
+            <param name="env">Host Environment.</param>
+            <param name="input">Input <see cref="T:Microsoft.ML.Runtime.Data.IDataView"/>. This is the output from previous transform or loader.</param>
+            <param name="name">Name of the output column.</param>
+            <param name="source">Name of the column to be transformed. If this is null '<paramref name="name"/>' will be used.</param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.NADropTransform.GetIsNADelegate(Microsoft.ML.Runtime.Data.ColumnType)">
+            <summary>
+            Returns the isNA predicate for the respective type.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.NAHandleTransform">
+            <!-- No matching elements were found for the following include tag --><include file="doc.xml" path="doc/members/member[@name=&quot;NAHandle&quot;]" />
+        </member>
+        <member name="F:Microsoft.ML.Runtime.Data.NAHandleTransform.ReplacementKind.DefaultValue">
+            <summary>
+            Replace with the default value of the column based on it's type. For example, 'zero' for numeric and 'empty' for string/text columns.
+            </summary>
+        </member>
+        <member name="F:Microsoft.ML.Runtime.Data.NAHandleTransform.ReplacementKind.Mean">
+            <summary>
+            Replace with the mean value of the column. Supports only numeric/time span/ DateTime columns.
+            </summary>
+        </member>
+        <member name="F:Microsoft.ML.Runtime.Data.NAHandleTransform.ReplacementKind.Minimum">
+            <summary>
+            Replace with the minimum value of the column. Supports only numeric/time span/ DateTime columns.
+            </summary>
+        </member>
+        <member name="F:Microsoft.ML.Runtime.Data.NAHandleTransform.ReplacementKind.Maximum">
+            <summary>
+            Replace with the maximum value of the column. Supports only numeric/time span/ DateTime columns.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.NAHandleTransform.Create(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Data.IDataView,System.String,System.String,Microsoft.ML.Runtime.Data.NAHandleTransform.ReplacementKind)">
+            <summary>
+            A helper method to create <see cref="T:Microsoft.ML.Runtime.Data.NAHandleTransform"/> for public facing API.
+            </summary>
+            <param name="env">Host Environment.</param>
+            <param name="input">Input <see cref="T:Microsoft.ML.Runtime.Data.IDataView"/>. This is the output from previous transform or loader.</param>
+            <param name="name">Name of the output column.</param>
+            <param name="source">Name of the column to be transformed. If this is null '<paramref name="name"/>' will be used.</param>
+            <param name="replaceWith">The replacement method to utilize.</param>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.NAIndicatorTransform">
+            <member name="NAIndicator">
+      <summary>
+        This transform can transform either scalars or vectors (both fixed and variable size),
+        creating output columns that indicate, through the true/false booleans whether the row has a missing value.
+      </summary>
+      <seealso cref="T:Microsoft.ML.Runtime.Data.MetadataUtils.Kinds.HasMissingValues" />
+    </member>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.NAIndicatorTransform.#ctor(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Data.IDataView,System.String,System.String)">
+            <summary>
+            Convenience constructor for public facing API.
+            </summary>
+            <param name="env">Host Environment.</param>
+            <param name="input">Input <see cref="T:Microsoft.ML.Runtime.Data.IDataView"/>. This is the output from previous transform or loader.</param>
+            <param name="name">Name of the output column.</param>
+            <param name="source">Name of the column to be transformed. If this is null '<paramref name="name"/>' will be used.</param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.NAIndicatorTransform.#ctor(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Data.NAIndicatorTransform.Arguments,Microsoft.ML.Runtime.Data.IDataView)">
+            <summary>
+            Public constructor corresponding to SignatureDataTransform.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.NAIndicatorTransform.ComposeGetterOne(Microsoft.ML.Runtime.Data.IRow,System.Int32)">
+            <summary>
+            Getter generator for single valued inputs.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.NAIndicatorTransform.ComposeGetterOne``1(Microsoft.ML.Runtime.Data.IRow,System.Int32)">
+            <summary>
+             Tests if a value is NA for scalars.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.NAIndicatorTransform.ComposeGetterVec(Microsoft.ML.Runtime.Data.IRow,System.Int32)">
+            <summary>
+            Getter generator for vector valued inputs.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.NAIndicatorTransform.ComposeGetterVec``1(Microsoft.ML.Runtime.Data.IRow,System.Int32)">
+            <summary>
+             Tests if a value is NA for vectors.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.NAIndicatorTransform.FindNAs``1(Microsoft.ML.Runtime.Data.VBuffer{``0}@,Microsoft.ML.Runtime.Data.RefPredicate{``0},System.Boolean,System.Collections.Generic.List{System.Int32},System.Boolean@)">
+            <summary>
+            Adds all NAs (or non-NAs) to the indices List.  Whether NAs or non-NAs have been added is indicated by the bool sense.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.NAIndicatorTransform.FillValues(System.Int32,Microsoft.ML.Runtime.Data.VBuffer{System.Boolean}@,System.Collections.Generic.List{System.Int32},System.Boolean)">
+            <summary>
+             Fills indicator values for vectors.  The indices is a list that either holds all of the NAs or all
+             of the non-NAs, indicated by sense being true or false respectively.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.NAReplaceTransform">
+            <summary>
+        Create an output column of the same type and size of the input column, 
+        where missing values are replaced with either the default value or the mean/min/max value (for non-text columns only). 
+      </summary><remarks>
+        This transform can transform either scalars or vectors (both fixed and variable size),
+        creating output columns that are identical to the input columns except for replacing NA values
+        with either the default value, user input, or imputed values (min/max/mean are currently supported).
+        Imputation modes are supported for vectors both by slot and across all slots.
+      </remarks><seealso cref="T:Microsoft.ML.Runtime.Data.MetadataUtils.Kinds.HasMissingValues" />
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.NAReplaceTransform.ColumnInfo.#ctor(System.String,System.String,Microsoft.ML.Runtime.Data.NAReplaceTransform.ColumnInfo.ReplacementMode,System.Boolean)">
+            <summary>
+            Describes how the transformer handles one column pair.
+            </summary>
+            <param name="input">Name of input column.</param>
+            <param name="output">Name of output column.</param>
+            <param name="replacementMode">What to replace the missing value with.</param>
+            <param name="imputeBySlot">If true, per-slot imputation of replacement is performed.
+            Otherwise, replacement value is imputed for the entire vector column. This setting is ignored for scalars and variable vectors,
+            where imputation is always for the entire column.</param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.NAReplaceTransform.GetReplacementValues(Microsoft.ML.Runtime.Data.IDataView,Microsoft.ML.Runtime.Data.NAReplaceTransform.ColumnInfo[],System.Object[]@,System.Collections.BitArray[]@,Microsoft.ML.Runtime.Data.ColumnType[]@)">
+            <summary>
+            Fill the repValues array with the correct replacement values based on the user-given replacement kinds.
+            Vectors default to by-slot imputation unless otherwise specified, except for unknown sized vectors
+            which force across-slot imputation.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.NAReplaceTransform.GetIsNADelegate(Microsoft.ML.Runtime.Data.ColumnType)">
+            <summary>
+            Returns the isNA predicate for the respective type.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.NAReplaceTransform.GetSpecifiedValue(System.String,Microsoft.ML.Runtime.Data.ColumnType,System.Delegate)">
+            <summary>
+            Converts a string to its respective value in the corresponding type.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.NAReplaceTransform.Mapper.ComposeGetterOne(Microsoft.ML.Runtime.Data.IRow,System.Int32)">
+            <summary>
+            Getter generator for single valued inputs.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.NAReplaceTransform.Mapper.ComposeGetterOne``1(Microsoft.ML.Runtime.Data.IRow,System.Int32)">
+            <summary>
+             Replaces NA values for scalars.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.NAReplaceTransform.Mapper.ComposeGetterVec(Microsoft.ML.Runtime.Data.IRow,System.Int32)">
+            <summary>
+            Getter generator for vector valued inputs.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.NAReplaceTransform.Mapper.ComposeGetterVec``1(Microsoft.ML.Runtime.Data.IRow,System.Int32)">
+            <summary>
+             Replaces NA values for vectors.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.NAReplaceTransform.Mapper.FillValues``1(Microsoft.ML.Runtime.Data.VBuffer{``0}@,Microsoft.ML.Runtime.Data.VBuffer{``0}@,Microsoft.ML.Runtime.Data.RefPredicate{``0},``0,System.Boolean)">
+            <summary>
+             Fills values for vectors where there is one replacement value.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.NAReplaceTransform.Mapper.FillValues``1(Microsoft.ML.Runtime.Data.VBuffer{``0}@,Microsoft.ML.Runtime.Data.VBuffer{``0}@,Microsoft.ML.Runtime.Data.RefPredicate{``0},``0[],System.Collections.BitArray)">
+            <summary>
+             Fills values for vectors where there is slot-wise replacement values.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.NAReplaceTransform.StatAggregator">
+            <summary>
+            The base class for stat aggregators for imputing mean, min, and max for the NAReplaceTransform.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.NAReplaceTransform.StatAggregator`2">
+            <summary>
+            The base class for stat aggregators with knowledge of types.
+            </summary>
+            <typeparam name="TValue">The type for the column being aggregated.</typeparam>
+            <typeparam name="TStat">The type of the stat being computed by the stat aggregator.</typeparam>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.Data.NAReplaceTransform.StatAggregator`2.RowCount">
+            <summary>
+            Returns the number of times that ProcessRow has been called.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.Data.NAReplaceTransform.StatAggregatorAcrossSlots`2.ValueCount">
+            <summary>
+            Returns the number of values that have been processed so far.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.Data.NAReplaceTransform.MinMaxAggregatorAcrossSlots`2.ValuesProcessed">
+            <summary>
+            Returns the number of times that ProcessValue has been called.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.NAReplaceTransform.MeanStatDouble">
+            <summary>
+            This is a mutable struct (so is evil). However, its scope is restricted
+            and the only instances are in a field or an array, so the mutation does
+            the right thing.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.NAReplaceTransform.MeanStatInt">
+            <summary>
+            A mutable struct for keeping the appropriate statistics for mean calculations for IX types, TS, and DT,
+            whose scope is restricted and only exists as an instance in a field or an array, utilizing the mutation
+            of the struct correctly.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.NAReplaceExtensions">
+            <summary>
+            Extension methods for the static-pipeline over <see cref="T:Microsoft.ML.Data.StaticPipe.Runtime.PipelineColumn"/> objects.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.ProduceIdTransform">
+             <summary>
+             Produces a column with the cursor's ID as a column. This can be useful for diagnostic purposes.
+            
+             This class will obviously generate different data given different IDs. So, if you save data to
+             some other file, then apply this transform to that dataview, it may of course have a different
+             result. This is distinct from most transforms that produce results based on data alone.
+             </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.RffTransform.#ctor(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Data.IDataView,System.Int32,System.String,System.String)">
+            <summary>
+            Convenience constructor for public facing API.
+            </summary>
+            <param name="env">Host Environment.</param>
+            <param name="input">Input <see cref="T:Microsoft.ML.Runtime.Data.IDataView"/>. This is the output from previous transform or loader.</param>
+            <param name="newDim">The number of random Fourier features to create.</param>
+            <param name="name">Name of the output column.</param>
+            <param name="source">Name of the column to be transformed. If this is null '<paramref name="name"/>' will be used.</param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.RffTransform.#ctor(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Data.RffTransform.Arguments,Microsoft.ML.Runtime.Data.IDataView)">
+            <summary>
+            Public constructor corresponding to <see cref="T:Microsoft.ML.Runtime.Data.SignatureDataTransform"/>.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.TermLookupTransform">
+            <summary>
+            This transform maps text values columns to new columns using a map dataset provided through its arguments.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.TermLookupTransform.ValueMap">
+            <summary>
+            Holds the values that the terms map to.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.TermLookupTransform.ValueMap`1">
+            <summary>
+            Holds the values that the terms map to - where the destination type is TRes.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.TermLookupTransform.ValueMap`1.Train(Microsoft.ML.Runtime.IExceptionContext,Microsoft.ML.Runtime.Data.IRowCursor,System.Int32,System.Int32)">
+            <summary>
+            Bind this value map to the given cursor for "training".
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.TermLookupTransform.ValueMap`1.GetGetter(Microsoft.ML.Runtime.Data.ValueGetter{System.ReadOnlyMemory{System.Char}})">
+            <summary>
+            Given the term getter, produce a value getter from this value map.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.TermLookupTransform.OneValueMap`1">
+            <summary>
+            Holds the values that the terms map to when the destination type is a PrimitiveType (non-vector).
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.TermLookupTransform.VecValueMap`1">
+            <summary>
+            Holds the values that the terms map to when the destination type is a VectorType.
+            TItem is the represtation type for the vector's ItemType.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.TermLookupTransform.#ctor(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Data.TermLookupTransform.Arguments,Microsoft.ML.Runtime.Data.IDataView)">
+            <summary>
+            Public constructor corresponding to SignatureDataTransform.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.NgramHashTransform.#ctor(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Data.NgramHashTransform.Arguments,Microsoft.ML.Runtime.Data.IDataView)">
+            <summary>
+            Public constructor corresponding to SignatureDataTransform.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.NgramHashTransform.InvertHashHelper.CallAllGetters(Microsoft.ML.Runtime.Data.IRow)">
+            <summary>
+            Construct an action that calls all the getters for a row, so as to easily force computation
+            of lazily computed values. This will have the side effect of calling the decorator.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.NgramTransform.WeightingCriteria">
+            <summary>
+            Weighting criteria: a statistical measure used to evaluate how important a word is to a document in a corpus.
+            This enumeration is serialized.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.NgramTransform.#ctor(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Data.NgramTransform.Arguments,Microsoft.ML.Runtime.Data.IDataView)">
+            <summary>
+            Public constructor corresponding to SignatureDataTransform.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.NgramIdFinder">
+            <summary>
+            This delegate represents a function that gets an ngram as input, and outputs the id of
+            the ngram and whether or not to continue processing ngrams.
+            </summary>
+            <param name="ngram">The array containing the ngram</param>
+            <param name="lim">The ngram is stored in ngram[0],...ngram[lim-1].</param>
+            <param name="icol">The index of the column the transform is applied to.</param>
+            <param name="more">True if processing should continue, false if it should stop.
+            It is true on input, so only needs to be set to false.</param>
+            <returns>The ngram slot if it was found, -1 otherwise.</returns>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.TextTransform">
+            <summary>
+        A transform that turns a collection of text documents into numerical feature vectors.
+        The feature vectors are normalized counts of (word and/or character) ngrams in a given tokenized text.
+      </summary><remarks>
+        The TextFeaturizer transform gives user one-stop solution for doing:
+        <list type="bullet">
+          <item><description>Language Detection</description></item>
+          <item><description>Tokenzation​</description></item>
+          <item><description>Text normalization</description></item>
+          <item><description>Predefined and custom stopwords removal.</description></item>
+          <item><description>Word-based or character-based Ngram and SkipGram extraction.​</description></item>
+          <item><description>TF, IDF or TF-IDF.</description></item>
+          <item><description>L-p vector normalization.​</description></item>
+        </list>
+        The TextFeaturizer will show the transformed text, after being applied.
+        It converts a collection of text columns to a matrix of token  ngrams/skip-grams counts.
+        Features are made of (word/character) n-grams/skip-grams​ and the number of features are equal to the vocabulary size found by analyzing the data.
+      </remarks>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.TextTransform.Language">
+            <summary>
+            Text language. This enumeration is serialized.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.TextTransform.TextNormKind">
+            <summary>
+            Text vector normalizer kind.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.TextTransform.Arguments">
+            <summary>
+            This class exposes <see cref="T:Microsoft.ML.Runtime.Data.NgramExtractorTransform"/>/<see cref="T:Microsoft.ML.Runtime.Data.NgramHashExtractorTransform"/> arguments.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.TextTransform.TransformApplierParams">
+            <summary>
+            A distilled version of the TextTransform Arguments, with all fields marked readonly and
+            only the exact set of information needed to construct the transforms preserved.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.TextFeaturizerStaticPipe">
+            <summary>
+            Extension methods for the static-pipeline over <see cref="T:Microsoft.ML.Data.StaticPipe.Runtime.PipelineColumn"/> objects.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.SignatureNgramExtractorFactory">
+            <summary>
+            Signature for creating an INgramExtractorFactory.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.ExtractorColumn">
+            <summary>
+            A many-to-one column common to both <see cref="T:Microsoft.ML.Runtime.Data.NgramExtractorTransform"/>
+            and <see cref="T:Microsoft.ML.Runtime.Data.NgramHashExtractorTransform"/>.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.WordBagTransform.TokenizeColumn">
+            <summary>
+            A vanilla implementation of OneToOneColumn that is used to represent the input of any tokenize
+            transform (a transform that implements ITokenizeTransform interface).
+            Note: Since WordBagTransform is a many-to-one column transform, for each WordBagTransform.Column
+            with multiple sources, ConcatTransform is applied first. The output of ConcatTransform is a
+            one-to-one column which is in turn the input to a tokenize transform.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.WordBagTransform.Arguments">
+            <summary>
+            This class is a merger of <see cref="T:Microsoft.ML.Runtime.Data.ITokenizeTransform"/>
+            and <see cref="T:Microsoft.ML.Runtime.Data.NgramExtractorTransform.ArgumentsBase"/> options.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.NgramExtractorTransform">
+            <summary>
+            A transform that turns a collection of tokenized text (vector of ReadOnlyMemory), or vectors of keys into numerical
+            feature vectors. The feature vectors are counts of ngrams (sequences of consecutive *tokens* -words or keys-
+            of length 1-n).
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.NgramExtractorTransform.ArgumentsBase">
+            <summary>
+            This class is a merger of <see cref="T:Microsoft.ML.Runtime.Data.TermTransform.Arguments"/> and
+            <see cref="T:Microsoft.ML.Runtime.Data.NgramTransform.Arguments"/>, with the allLength option removed.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.TermLoaderArguments">
+            <summary>
+            Arguments for defining custom list of terms or data file containing the terms.
+            The class includes a subset of <see cref="T:Microsoft.ML.Runtime.Data.TermTransform"/>'s arguments.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.INgramExtractorFactory">
+            <summary>
+            An ngram extractor factory interface to create an ngram extractor transform.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.Data.INgramExtractorFactory.UseHashingTrick">
+            <summary>
+            Whether the extractor transform created by this factory uses the hashing trick
+            (by using <see cref="T:Microsoft.ML.Transforms.HashTransformer"/> or <see cref="T:Microsoft.ML.Runtime.Data.NgramHashTransform"/>, for example).
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.NgramExtractorFactory">
+            <summary>
+            An implementation of <see cref="T:Microsoft.ML.Runtime.Data.INgramExtractorFactory"/> to create <see cref="T:Microsoft.ML.Runtime.Data.NgramExtractorTransform"/>.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.NgramHashExtractorFactory">
+            <summary>
+            An implementation of <see cref="T:Microsoft.ML.Runtime.Data.INgramExtractorFactory"/> to create <see cref="T:Microsoft.ML.Runtime.Data.NgramHashExtractorTransform"/>.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.NgramExtractionUtils.GenerateUniqueSourceNames(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Data.ManyToOneColumn[],Microsoft.ML.Runtime.Data.ISchema)">
+            <summary>
+            Generates and returns unique names for columns source. Each element of the returned array is
+            an array of unique source names per specific column.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.WordEmbeddingsTransform">
+            <summary>
+        Word Embeddings transform is a text featurizer which converts vectors of text tokens into sentence vectors using a pre-trained model.
+      </summary><remarks>
+        <para>WordEmbeddings wrap different embedding models, such as GloVe. Users can specify which embedding to use. 
+        The available options are various versions of <a href="https://nlp.stanford.edu/projects/glove/">GloVe Models</a>, <a href="https://en.wikipedia.org/wiki/FastText">fastText</a>, and <a href="https://anthology.aclweb.org/P/P14/P14-1146.pdf">SSWE</a>.
+        </para>
+        <para>Note: As WordEmbedding requires a column with text vector, e.g. 'this', 'is', 'good', users need to create an input column by
+          using the output_tokens=True for TextTransform to convert a column with sentences like 'This is good' into 'this', 'is', 'good'.
+          The suffix of '_TransformedText' is added to the original column name to create the output token column. For instance if the input column is 'body',
+          the output tokens column is named 'body_TransformedText'.</para>
+        <para>
+          License attributes for pretrained models:
+          <list type="bullet">
+            <item>
+              <description>
+                "fastText Wikipedia 300D" by Facebook, Inc. is licensed under <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA 3.0</a> based on:
+                P. Bojanowski*, E. Grave*, A. Joulin, T. Mikolov,<a href="https://arxiv.org/abs/1607.04606">Enriching Word Vectors with Subword Information</a>
+                More information can be found <a href="https://github.com/facebookresearch/fastText/blob/master/pretrained-vectors.md">here</a>.
+              </description>
+            </item>
+            <item>
+              <description>
+                GloVe models by Stanford University, or (Jeffrey Pennington, Richard Socher, and Christopher D. Manning. 2014. 
+                <a href="https://nlp.stanford.edu/pubs/glove.pdf">GloVe: Global Vectors for Word Representation</a>) is licensed under <a href="https://opendatacommons.org/licenses/pddl/1.0/">PDDL</a>.
+                More information can be found <a href="https://nlp.stanford.edu/projects/glove/">here</a>. 
+                Repository can be found <a href="https://github.com/stanfordnlp/GloVe">here</a>.
+              </description>
+          </item>
+        </list>
+        </para>
+      </remarks>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.WordEmbeddingsTransform.ColumnInfo">
+            <summary>
+            Information for each column pair.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.WordEmbeddingsTransform.#ctor(Microsoft.ML.Runtime.IHostEnvironment,System.String,System.String,Microsoft.ML.Runtime.Data.WordEmbeddingsTransform.PretrainedModelKind)">
+            <summary>
+            Instantiates <see cref="T:Microsoft.ML.Runtime.Data.WordEmbeddingsTransform"/> using the pretrained word embedding model specified by <paramref name="modelKind"/>.
+            </summary>
+            <param name="env">Host Environment.</param>
+            <param name="inputColumn">Name of the input column.</param>
+            <param name="outputColumn">Name of the output column.</param>
+            <param name="modelKind">The pretrained word embedding model.</param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.WordEmbeddingsTransform.#ctor(Microsoft.ML.Runtime.IHostEnvironment,System.String,System.String,System.String)">
+            <summary>
+            Instantiates <see cref="T:Microsoft.ML.Runtime.Data.WordEmbeddingsTransform"/> using the custom word embedding model by loading it from the file specified by the <paramref name="customModelFile"/>.
+            </summary>
+            <param name="env">Host Environment.</param>
+            <param name="inputColumn">Name of the input column.</param>
+            <param name="outputColumn">Name of the output column.</param>
+            <param name="customModelFile">Filename for custom word embedding model.</param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.WordEmbeddingsTransform.#ctor(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Data.WordEmbeddingsTransform.PretrainedModelKind,Microsoft.ML.Runtime.Data.WordEmbeddingsTransform.ColumnInfo[])">
+            <summary>
+            Instantiates <see cref="T:Microsoft.ML.Runtime.Data.WordEmbeddingsTransform"/> using the pretrained word embedding model specified by <paramref name="modelKind"/>.
+            </summary>
+            <param name="env">Host Environment.</param>
+            <param name="modelKind">The pretrained word embedding model.</param>
+            <param name="columns">Input/Output columns.</param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.WordEmbeddingsTransform.#ctor(Microsoft.ML.Runtime.IHostEnvironment,System.String,Microsoft.ML.Runtime.Data.WordEmbeddingsTransform.ColumnInfo[])">
+            <summary>
+            Instantiates <see cref="T:Microsoft.ML.Runtime.Data.WordEmbeddingsTransform"/> using the custom word embedding model by loading it from the file specified by the <paramref name="customModelFile"/>.
+            </summary>
+            <param name="env">Host Environment.</param>
+            <param name="customModelFile">Filename for custom word embedding model.</param>
+            <param name="columns">Input/Output columns.</param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.WordEmbeddingsStaticExtensions.WordEmbeddings(Microsoft.ML.Data.StaticPipe.Runtime.VarVector{System.String},Microsoft.ML.Runtime.Data.WordEmbeddingsTransform.PretrainedModelKind)">
+            <summary>
+        Word Embeddings transform is a text featurizer which converts vectors of text tokens into sentence vectors using a pre-trained model.
+      </summary><remarks>
+        <para>WordEmbeddings wrap different embedding models, such as GloVe. Users can specify which embedding to use. 
+        The available options are various versions of <a href="https://nlp.stanford.edu/projects/glove/">GloVe Models</a>, <a href="https://en.wikipedia.org/wiki/FastText">fastText</a>, and <a href="https://anthology.aclweb.org/P/P14/P14-1146.pdf">SSWE</a>.
+        </para>
+        <para>Note: As WordEmbedding requires a column with text vector, e.g. 'this', 'is', 'good', users need to create an input column by
+          using the output_tokens=True for TextTransform to convert a column with sentences like 'This is good' into 'this', 'is', 'good'.
+          The suffix of '_TransformedText' is added to the original column name to create the output token column. For instance if the input column is 'body',
+          the output tokens column is named 'body_TransformedText'.</para>
+        <para>
+          License attributes for pretrained models:
+          <list type="bullet">
+            <item>
+              <description>
+                "fastText Wikipedia 300D" by Facebook, Inc. is licensed under <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA 3.0</a> based on:
+                P. Bojanowski*, E. Grave*, A. Joulin, T. Mikolov,<a href="https://arxiv.org/abs/1607.04606">Enriching Word Vectors with Subword Information</a>
+                More information can be found <a href="https://github.com/facebookresearch/fastText/blob/master/pretrained-vectors.md">here</a>.
+              </description>
+            </item>
+            <item>
+              <description>
+                GloVe models by Stanford University, or (Jeffrey Pennington, Richard Socher, and Christopher D. Manning. 2014. 
+                <a href="https://nlp.stanford.edu/pubs/glove.pdf">GloVe: Global Vectors for Word Representation</a>) is licensed under <a href="https://opendatacommons.org/licenses/pddl/1.0/">PDDL</a>.
+                More information can be found <a href="https://nlp.stanford.edu/projects/glove/">here</a>. 
+                Repository can be found <a href="https://github.com/stanfordnlp/GloVe">here</a>.
+              </description>
+          </item>
+        </list>
+        </para>
+      </remarks>
+            <param name="input">Vector of tokenized text.</param>
+            <param name="modelKind">The pretrained word embedding model.</param>
+            <returns />
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.WordEmbeddingsStaticExtensions.WordEmbeddings(Microsoft.ML.Data.StaticPipe.Runtime.VarVector{System.String},System.String)">
+            <summary>
+        Word Embeddings transform is a text featurizer which converts vectors of text tokens into sentence vectors using a pre-trained model.
+      </summary><remarks>
+        <para>WordEmbeddings wrap different embedding models, such as GloVe. Users can specify which embedding to use. 
+        The available options are various versions of <a href="https://nlp.stanford.edu/projects/glove/">GloVe Models</a>, <a href="https://en.wikipedia.org/wiki/FastText">fastText</a>, and <a href="https://anthology.aclweb.org/P/P14/P14-1146.pdf">SSWE</a>.
+        </para>
+        <para>Note: As WordEmbedding requires a column with text vector, e.g. 'this', 'is', 'good', users need to create an input column by
+          using the output_tokens=True for TextTransform to convert a column with sentences like 'This is good' into 'this', 'is', 'good'.
+          The suffix of '_TransformedText' is added to the original column name to create the output token column. For instance if the input column is 'body',
+          the output tokens column is named 'body_TransformedText'.</para>
+        <para>
+          License attributes for pretrained models:
+          <list type="bullet">
+            <item>
+              <description>
+                "fastText Wikipedia 300D" by Facebook, Inc. is licensed under <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA 3.0</a> based on:
+                P. Bojanowski*, E. Grave*, A. Joulin, T. Mikolov,<a href="https://arxiv.org/abs/1607.04606">Enriching Word Vectors with Subword Information</a>
+                More information can be found <a href="https://github.com/facebookresearch/fastText/blob/master/pretrained-vectors.md">here</a>.
+              </description>
+            </item>
+            <item>
+              <description>
+                GloVe models by Stanford University, or (Jeffrey Pennington, Richard Socher, and Christopher D. Manning. 2014. 
+                <a href="https://nlp.stanford.edu/pubs/glove.pdf">GloVe: Global Vectors for Word Representation</a>) is licensed under <a href="https://opendatacommons.org/licenses/pddl/1.0/">PDDL</a>.
+                More information can be found <a href="https://nlp.stanford.edu/projects/glove/">here</a>. 
+                Repository can be found <a href="https://github.com/stanfordnlp/GloVe">here</a>.
+              </description>
+          </item>
+        </list>
+        </para>
+      </remarks>
+            <param name="input">Vector of tokenized text.</param>
+            <param name="customModelFile">The custom word embedding model file.</param>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.WordHashBagTransform.Arguments">
+            <summary>
+            This class is a merger of <see cref="T:Microsoft.ML.Runtime.Data.ITokenizeTransform"/>
+            and <see cref="T:Microsoft.ML.Runtime.Data.NgramExtractorTransform.ArgumentsBase"/> options.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.NgramHashExtractorTransform">
+            <summary>
+            A transform that turns a collection of tokenized text (vector of ReadOnlyMemory) into numerical feature vectors
+            using the hashing trick.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.NgramHashExtractorTransform.ArgumentsBase">
+            <summary>
+            This class is a merger of <see cref="T:Microsoft.ML.Transforms.HashTransformer.Arguments"/> and
+            <see cref="T:Microsoft.ML.Runtime.Data.NgramHashTransform.Arguments"/>, with the ordered option,
+            the rehashUnigrams option and the allLength option removed.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.SignatureTokenizeTransform">
+            <summary>
+            Signature for creating an ITokenizeTransform.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.DelimitedTokenizeTransform">
+            <summary>
+        This transform splits the text into words using the separator character(s).
+      </summary><remarks>
+        The input for this transform is a ReadOnlyMemory or a vector of ReadOnlyMemory,
+        and its output is a vector of ReadOnlyMemory, corresponding to the tokens in the input text.
+        The output is generated by splitting the input text, using a set of user specified separator characters.
+        Empty strings and strings containing only spaces are dropped.
+        This transform is not typically used on its own, but it is one of the transforms composing the Text Featurizer.
+      </remarks>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.DelimitedTokenizeTransform.ColInfoEx">
+            <summary>
+            Extra information for each column (in addition to ColumnInfo).
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.DelimitedTokenizeTransform.#ctor(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Data.DelimitedTokenizeTransform.Arguments,Microsoft.ML.Runtime.Data.IDataView)">
+            <summary>
+            Public constructor corresponding to SignatureDataTransform.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.DelimitedTokenizeTransform.#ctor(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Data.DelimitedTokenizeTransform.TokenizeArguments,Microsoft.ML.Runtime.Data.IDataView,Microsoft.ML.Runtime.Data.OneToOneColumn[])">
+            <summary>
+            Public constructor corresponding to SignatureTokenizeTransform. It accepts arguments of type ArgumentsBase,
+            and a separate array of columns (constructed from the caller -WordBag/WordHashBag- arguments).
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.UngroupTransform">
+            <summary>
+        Un-groups vector columns into sequences of rows, inverse of Group transform.
+       </summary><remarks>
+        <para>This can be thought of as an inverse of the <see cref="T:Microsoft.ML.Transforms.CombinerByContiguousGroupId" />.  
+        For all specified vector columns ("pivot" columns), performs the "ungroup" (or "unroll") operation as outlined below.
+        </para>
+        <para>If the only pivot column is called P, and has size K, then for every row of the input we will produce 
+         K rows, that are identical in all columns except P. The column P will become a scalar column, and this 
+         column will hold all the original values of input's P, one value per row, in order. The order of columns 
+         will remain the same.
+        </para>
+        <para>Variable-length pivot columns are supported (including zero, which will eliminate the row from the result).</para>
+        <para>Multiple pivot columns are also supported:</para>
+        <list type="bullet">
+          <item><description>A number of output rows is controlled by the 'mode' parameter. 
+            <list type="bullet">
+              <item><term>outer</term><description> it is equal to the maximum length of pivot columns</description></item>
+              <item><term>inner</term><description> it is equal to the minimum length of pivot columns</description></item>
+              <item><term>first</term><description> it is equal to the length of the first pivot column</description></item>
+            </list>
+            </description>
+          </item>
+          <item><description>
+              If a particular pivot column has size that is different than the number of output rows, the extra slots will
+              be ignored, and the missing slots will be 'padded' with default values.
+            </description></item>
+        </list>
+        <para>All metadata are preserved for the retained columns. For 'unrolled' columns, all known metadata
+        except slot names are preserved.
+        </para>
+      </remarks>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.UngroupTransform.UngroupMode">
+            <summary>
+            Controls the number of output rows produced by the <see cref="T:Microsoft.ML.Runtime.Data.UngroupTransform"/> transform
+            </summary>
+        </member>
+        <member name="F:Microsoft.ML.Runtime.Data.UngroupTransform.UngroupMode.Inner">
+            <summary>
+            The number of output rows is equal to the minimum length of pivot columns
+            </summary>
+        </member>
+        <member name="F:Microsoft.ML.Runtime.Data.UngroupTransform.UngroupMode.Outer">
+            <summary>
+            The number of output rows is equal to the maximum length of pivot columns
+            </summary>
+        </member>
+        <member name="F:Microsoft.ML.Runtime.Data.UngroupTransform.UngroupMode.First">
+            <summary>
+            The number of output rows is equal to the length of the first pivot column.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.UngroupTransform.#ctor(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Data.IDataView,Microsoft.ML.Runtime.Data.UngroupTransform.UngroupMode,System.String[])">
+            <summary>
+            Convenience constructor for public facing API.
+            </summary>
+            <param name="env">Host Environment.</param>
+            <param name="input">Input <see cref="T:Microsoft.ML.Runtime.Data.IDataView"/>. This is the output from previous transform or loader.</param>
+            <param name="mode">Specifies how to unroll multiple pivot columns of different size.</param>
+            <param name="columns">Columns to unroll, or 'pivot'</param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.UngroupTransform.SchemaImpl.GetActiveInput(System.Func{System.Int32,System.Boolean})">
+            <summary>
+            Return an array of active input columns given the target predicate.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Data.WhiteningTransform">
+            <summary>
+        Implements PCA (Principal Component Analysis) and ZCA (Zero phase Component Analysis) whitening.
+        The whitening process consists of 2 steps:
+            1. Decorrelation of the input data. Input data is assumed to have zero mean.
+            2. Rescale decorrelated features to have unit variance.
+        That is, PCA whitening is essentially just a PCA + rescale.
+        ZCA whitening tries to make resulting data to look more like input data by rotating it back to the
+        original input space.
+        More information: <a href="http://ufldl.stanford.edu/wiki/index.php/Whitening">http://ufldl.stanford.edu/wiki/index.php/Whitening</a>
+      </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.WhiteningTransform.#ctor(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Data.IDataView,System.String,System.String,Microsoft.ML.Runtime.Data.WhiteningKind)">
+            <summary>
+            Convenience constructor for public facing API.
+            </summary>
+            <param name="env">Host Environment.</param>
+            <param name="input">Input <see cref="T:Microsoft.ML.Runtime.Data.IDataView"/>. This is the output from previous transform or loader.</param>
+            <param name="name">Name of the output column.</param>
+            <param name="source">Name of the column to be transformed. If this is null '<paramref name="name"/>' will be used.</param>
+            <param name="kind">Whitening kind (PCA/ZCA).</param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.WhiteningTransform.#ctor(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Data.WhiteningTransform.Arguments,Microsoft.ML.Runtime.Data.IDataView)">
+            <summary>
+            Public constructor corresponding to SignatureDataTransform.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Data.WhiteningTransform.DotProduct(System.Single[],System.Int32,System.Single[],System.Int32[],System.Int32)">
+            <summary>
+            Returns a dot product of dense vector 'a' starting from offset 'aOffset' and sparse vector 'b'
+            with first 'count' valid elements and their corresponding 'indices'.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Transforms.TextAnalytics">
+            <summary>
+            Entry points for text anylytics transforms.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.DataPipe.OptionalColumnTransform">
+            <summary>
+        Creates a new column with the specified type and default values.
+      </summary><remarks>
+        If the user wish to create additional columns with a particular type and default values, or replicated the values from one column to another, changing their type, they can do so using this transform.
+        This transform can be used as a workaround to create a Label column after deserializing a model, for prediction.
+        Some transforms in the serialized model operate on the Label column, and would throw errors during prediction if such a column is not found.
+      </remarks>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.DataPipe.OptionalColumnTransform.#ctor(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Data.IDataView,System.String[])">
+            <summary>
+            Convenience constructor for public facing API.
+            </summary>
+            <param name="env">Host Environment.</param>
+            <param name="input">Input <see cref="T:Microsoft.ML.Runtime.Data.IDataView"/>. This is the output from previous transform or loader.</param>
+            <param name="columns">Columns to transform.</param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.DataPipe.OptionalColumnTransform.#ctor(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.DataPipe.OptionalColumnTransform.Arguments,Microsoft.ML.Runtime.Data.IDataView)">
+            <summary>
+            Public constructor corresponding to SignatureDataTransform.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.TextAnalytics.CharTokenizeTransform">
+            <summary>
+            Character-oriented tokenizer where text is considered a sequence of characters.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.TextAnalytics.CharTokenizeTransform.GetKeyValues(System.Int32,Microsoft.ML.Runtime.Data.VBuffer{System.ReadOnlyMemory{System.Char}}@)">
+            <summary>
+            Get the key values (chars) corresponding to keys in the output columns.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.TextAnalytics.LdaTransform">
+            <summary>
+        The LDA transform implements LightLDA, a state-of-the-art implementation of Latent Dirichlet Allocation.
+      </summary><remarks>
+        Latent Dirichlet Allocation is a well-known topic modeling algorithm that infers topical structure from text data,
+        and can be used to featurize any text fields as low-dimensional topical vectors. 
+        <para>LightLDA is an extremely efficient implementation of LDA developed in MSR-Asia that incorporates a number of 
+         optimization techniques. See <a href="https://arxiv.org/abs/1412.1576">LightLDA: Big Topic Models on Modest Compute Clusters</a>.
+        </para>
+        <para>
+          With the LDA transform, ML.NET users can train a topic model to produce 1 million topics with 1 million vocabulary
+          on a 1-billion-token document set one a single machine in a few hours (typically, LDA at this scale takes days and requires large clusters).
+          The most significant innovation is a super-efficient O(1) <a href="https://en.wikipedia.org/wiki/Metropolis–Hastings_algorithm">Metropolis-Hastings sampling algorithm</a>,
+          whose running cost is (surprisingly) agnostic of model size,
+          allowing it to converges nearly an order of magnitude faster than other <a href="https://en.wikipedia.org/wiki/Gibbs_sampling">Gibbs samplers.</a>
+        </para>
+        <para>
+          For more details please see original LightLDA paper, and its open source implementation. 
+          <list type="bullet">
+            <item><description><a href="https://arxiv.org/abs/1412.1576"> LightLDA: Big Topic Models on Modest Computer Clusters</a></description></item>
+            <item><description><a href=" https://github.com/Microsoft/LightLDA">LightLDA </a></description></item>
+          </list>
+        </para>
+      </remarks>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.TextAnalytics.SentimentAnalyzingTransform">
+            <summary>
+        Uses a pretrained sentiment model to score input strings.
+      </summary><remarks>
+        <para>The Sentiment transform returns the probability that the sentiment of a natural text is positive. </para>
+        <para>
+          The model was trained with the <a href="https://anthology.aclweb.org/P/P14/P14-1146.pdf">Sentiment-specific word embedding (SSWE)</a>  and NGramFeaturizer on Twitter sentiment data,
+          similarly to the sentiment analysis part of the
+          <a href="https://www.microsoft.com/cognitive-services/en-us/text-analytics-api">Text Analytics cognitive service</a>. 
+          The transform outputs a score between 0 and 1 as a sentiment prediction 
+          (where 0 is a negative sentiment and 1 is a positive sentiment).</para> 
+          <para>Currently it supports only English.</para>
+      </remarks>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.TextAnalytics.SentimentAnalyzingTransform.AliasIfNeeded(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Data.IDataView,System.String[],System.Collections.Generic.KeyValuePair{System.String,System.String}[]@)">
+            <summary>
+            If any column names in <param name="colNames" /> are present in <param name="input" />, this
+            method will create a transform that copies them to temporary columns. It will populate <param name="hiddenNames" />
+            with an array of string pairs containing the original name and the generated temporary column name, respectively.
+            </summary>
+            <param name="env"></param>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.TextAnalytics.SignatureStopWordsRemoverTransform">
+            <summary>
+            Signature for creating an IStopWordsRemoverTransform.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.TextAnalytics.StopWordsRemoverTransform">
+            <summary>
+            A Stopword remover transform based on language-specific lists of stop words (most common words)
+            from Office Named Entity Recognition project.
+            The transform is usually applied after tokenizing text, so it compares individual tokens
+            (case-insensitive comparison) to the stopwords.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.TextAnalytics.StopWordsRemoverTransform.Language">
+            <summary>
+            Stopwords language. This enumeration is serialized.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.TextAnalytics.StopWordsRemoverTransform.ColInfoEx.Bind(Microsoft.ML.Runtime.Data.ISchema,System.String,System.Int32@,System.Boolean)">
+            <summary>
+            Binds a text column with the given name using input schema and returns the column index.
+            Fails if there is no column with the given name or if the column type is not text.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.TextAnalytics.CustomStopWordsRemoverTransform.#ctor(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.TextAnalytics.CustomStopWordsRemoverTransform.LoaderArguments,Microsoft.ML.Runtime.Data.IDataView,Microsoft.ML.Runtime.Data.OneToOneColumn[])">
+            <summary>
+            Public constructor corresponding to SignatureStopWordsRemoverTransform. It accepts arguments of type LoaderArguments,
+            and a separate array of columns (constructed by the caller -TextTransform- arguments).
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.TextAnalytics.TextNormalizerTransform">
+            <summary>
+            A text normalization transform that allows normalizing text case, removing diacritical marks, punctuation marks and/or numbers.
+            The transform operates on text input as well as vector of tokens/text (vector of ReadOnlyMemory).
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.TextAnalytics.TextNormalizerTransform.CaseNormalizationMode">
+            <summary>
+            Case normalization mode of text. This enumeration is serialized.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.TextAnalytics.TextNormalizerTransform.IsCombiningDiacritic(System.Char)">
+            <summary>
+            Whether a character is a combining diacritic character or not.
+            Combining diacritic characters are the set of diacritics intended to modify other characters.
+            The list is provided by Office NL team.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Transforms.Properties.Resources">
+            <summary>
+              A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ML.Transforms.Properties.Resources.ResourceManager">
+            <summary>
+              Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ML.Transforms.Properties.Resources.Culture">
+            <summary>
+              Overrides the current thread's CurrentUICulture property for all
+              resource lookups using this strongly typed resource class.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ML.Transforms.Properties.Resources.Arabic">
+             <summary>
+               Looks up a localized string similar to ب
+            ب
+            بعد
+            حتى
+            حين
+            دون
+            صباح
+            في
+            قبل
+            لكن
+            مساء
+            مع
+            من
+            نحو
+            واكد
+            وفي
+            ومن
+            اطار
+            و
+            اثر
+            اجل
+            احد
+            اذا
+            اكثر
+            اكد
+            التي
+            الثاني
+            الثانية
+            الذاتي
+            الذي
+            الذين
+            السابق
+            الف
+            الماضي
+            المقبل
+            الوقت
+            اليوم
+            امس
+            انه
+            باسم
+            بان
+            برس
+            بسبب
+            بشكل
+            بعض
+            بن
+            به
+            بها
+            بين
+            تم
+            ثلاثة
+            ثم
+            جميع
+            حاليا
+            حوالى
+            حول
+            حيث
+            خلال
+            ذلك
+            زيارة
+            سنة
+            سنوات
+            شخصا
+            صفر
+            ضد
+            ضمن
+            عام
+            عاما
+            عدة
+            عدد
+            عدم
+            عشر
+            عشرة
+            على
+            عليه
+            عليها
+            عن
+            عند
+            عندما
+            غدا
+            غير
+            فان
+            فيه
+            فيها
+            قال
+            قد
+            قوة
+            كان
+            كانت
+            كل
+            كلم
+            كما
+            لا
+            لدى
+            لقا [rest of string was truncated]&quot;;.
+             </summary>
+        </member>
+        <member name="P:Microsoft.ML.Transforms.Properties.Resources.Czech">
+             <summary>
+               Looks up a localized string similar to bude
+            budeš
+            byl
+            byla
+            byli
+            bylo
+            je
+            jsem
+            jsme
+            jsou
+            jste
+            aby
+            aj
+            ale
+            ani
+            asi
+            až
+            bez
+            bude-li
+            budeme
+            budeme-li
+            budete
+            budete-li
+            budeš-li
+            budou
+            budou-li
+            budu
+            budu-li
+            buď
+            buďme
+            buďte
+            by
+            byl-li
+            byla-li
+            bylas
+            byli-li
+            bylo-li
+            bylos
+            byls
+            byly
+            byly-li
+            byt
+            byv
+            byvše
+            byvši
+            být
+            býti
+            co
+            což
+            cz
+            další
+            design
+            dnes
+            do
+            email
+            ho
+            jak
+            jako
+            je-li
+            jeho
+            jej
+            jejich
+            její
+            jen
+            ještě
+            ji
+            jine
+            již
+            jsa
+            jsem-li
+            jsi
+            jsi-li
+            jsme-li
+            jsou-li
+            jsouc
+            jsouce
+            jste-li
+            kam
+            kde
+             [rest of string was truncated]&quot;;.
+             </summary>
+        </member>
+        <member name="P:Microsoft.ML.Transforms.Properties.Resources.Danish">
+             <summary>
+               Looks up a localized string similar to af
+            andre
+            at
+            da
+            de
+            deres
+            dette
+            din
+            ej
+            en
+            ene
+            et
+            han
+            hans
+            i
+            ind
+            lille
+            ni
+            ny
+            otte
+            stor
+            store
+            syv
+            alle
+            andet
+            begge
+            den
+            denne
+            der
+            det
+            dig
+            dog
+            du
+            eller
+            end
+            eneste
+            enhver
+            fem
+            fire
+            flere
+            fleste
+            for
+            fordi
+            forrige
+            fra
+            få
+            før
+            god
+            har
+            hendes
+            her
+            hun
+            hvad
+            hvem
+            hver
+            hvilken
+            hvis
+            hvor
+            hvordan
+            hvorfor
+            hvornår
+            ikke
+            ingen
+            intet
+            jeg
+            jeres
+            kan
+            kom
+            kommer
+            lav
+            lidt
+            man
+            mand
+            mange
+            med
+            meget
+            men
+            mens
+            mere
+            mig
+            ned
+            nogen
+            noget
+            nyt
+            nær
+            næste
+            næsten
+             [rest of string was truncated]&quot;;.
+             </summary>
+        </member>
+        <member name="P:Microsoft.ML.Transforms.Properties.Resources.Dutch">
+             <summary>
+               Looks up a localized string similar to aan
+            af
+            al
+            als
+            bij
+            dan
+            dat
+            die
+            dit
+            een
+            en
+            er
+            had
+            heb
+            hem
+            het
+            hij
+            hoe
+            hun
+            ik
+            in
+            is
+            je
+            kan
+            me
+            men
+            met
+            mij
+            nog
+            nu
+            of
+            ons
+            ook
+            te
+            tot
+            uit
+            van
+            was
+            wat
+            we
+            wel
+            wij
+            zal
+            ze
+            zei
+            zij
+            zo
+            zou
+            .
+             </summary>
+        </member>
+        <member name="P:Microsoft.ML.Transforms.Properties.Resources.English">
+             <summary>
+               Looks up a localized string similar to a
+            about
+            above
+            above
+            across
+            after
+            afterwards
+            again
+            against
+            all
+            almost
+            alone
+            along
+            already
+            also
+            although
+            always
+            am
+            among
+            amongst
+            amoungst
+            amount
+            an
+            and
+            another
+            any
+            anyhow
+            anyone
+            anything
+            anyway
+            anywhere
+            are
+            around
+            as
+            at
+            back
+            be
+            became
+            because
+            become
+            becomes
+            becoming
+            been
+            before
+            beforehand
+            behind
+            being
+            below
+            beside
+            besides
+            between
+            beyond
+            both
+            bottom
+            but
+            by
+            call
+            can
+            cannot
+            cant
+            co
+            con
+            could
+            couldnt
+            cry
+            de
+            describe
+            detail
+            do
+            done
+            down
+            due
+            du [rest of string was truncated]&quot;;.
+             </summary>
+        </member>
+        <member name="P:Microsoft.ML.Transforms.Properties.Resources.French">
+             <summary>
+               Looks up a localized string similar to de
+            des
+            d&apos;
+            la
+            du
+            l&apos;
+            et
+            à
+            en
+            sur
+            aux
+            par
+            pour
+            au
+            dans
+            un
+            est
+            été
+            a
+            une
+            sous
+            ou
+            pas
+            entre
+            qui
+            nº
+            lès
+            plus
+            il
+            y
+            que
+            contre
+            je
+            non
+            n&apos;
+            sans
+            vous
+            avec
+            ne
+            ce
+            son
+            ses
+            mon
+            moins
+            se
+            qu&apos;
+            moi
+            j&apos;
+            c&apos;
+            si
+            ma
+            s&apos;
+            être
+            tout
+            comme
+            sa
+            sont
+            ai
+            elle
+            autres
+            pendant
+            chez
+            mais
+            avant
+            nous
+            cette
+            après
+            vers
+            était
+            tous
+            autre
+            tu
+            très
+            même
+            ont
+            anti
+            puis
+            leur
+            où
+            lui
+            ça
+            suis
+            depuis
+            ni
+            mes
+            près
+            hors
+            outre
+            ils
+            votre
+            toi
+            lors
+            t&apos;
+            aussi
+            donc
+            ces
+            toute
+             [rest of string was truncated]&quot;;.
+             </summary>
+        </member>
+        <member name="P:Microsoft.ML.Transforms.Properties.Resources.German">
+             <summary>
+               Looks up a localized string similar to a
+            ab
+            aber
+            aber
+            ach
+            acht
+            achte
+            achten
+            achter
+            achtes
+            ag
+            alle
+            allein
+            allem
+            allen
+            aller
+            allerdings
+            alles
+            allgemeinen
+            als
+            als
+            also
+            am
+            an
+            andere
+            anderen
+            andern
+            anders
+            au
+            auch
+            auch
+            auf
+            aus
+            ausser
+            außer
+            ausserdem
+            außerdem
+            b
+            bald
+            bei
+            beide
+            beiden
+            beim
+            beispiel
+            bekannt
+            bereits
+            besonders
+            besser
+            besten
+            bin
+            bis
+            bisher
+            bist
+            c
+            d
+            da
+            dabei
+            dadurch
+            dafür
+            dagegen
+            daher
+            dahin
+            dahinter
+            damals
+            damit
+            danach
+            daneben
+            dank
+            dann
+            daran
+            darauf
+            daraus
+            darf
+            darfst
+             [rest of string was truncated]&quot;;.
+             </summary>
+        </member>
+        <member name="P:Microsoft.ML.Transforms.Properties.Resources.Italian">
+             <summary>
+               Looks up a localized string similar to a
+            adesso
+            ai
+            al
+            alla
+            allo
+            allora
+            altre
+            altri
+            altro
+            anche
+            ancora
+            avere
+            aveva
+            avevano
+            ben
+            buono
+            che
+            chi
+            cinque
+            comprare
+            con
+            consecutivi
+            consecutivo
+            cosa
+            cui
+            da
+            del
+            della
+            dello
+            dentro
+            deve
+            devo
+            di
+            doppio
+            due
+            e
+            ecco
+            fare
+            fine
+            fino
+            fra
+            gente
+            giù
+            ha
+            hai
+            hanno
+            ho
+            il
+            indietro
+            invece
+            io
+            la
+            lavoro
+            le
+            lei
+            lo
+            loro
+            lui
+            lungo
+            ma
+            me
+            meglio
+            molta
+            molti
+            molto
+            nei
+            nella
+            no
+            noi
+            nome
+            nostro
+            nove
+            nuovi
+            nuovo
+            o
+            oltre
+            ora
+            otto
+            peggio
+            pero
+            persone
+            più [rest of string was truncated]&quot;;.
+             </summary>
+        </member>
+        <member name="P:Microsoft.ML.Transforms.Properties.Resources.Japanese">
+             <summary>
+               Looks up a localized string similar to これ
+            それ
+            あれ
+            この
+            その
+            あの
+            ここ
+            そこ
+            あそこ
+            こちら
+            どこ
+            だれ
+            なに
+            なん
+            何
+            私
+            貴方
+            貴方方
+            我々
+            私達
+            あの人
+            あのかた
+            彼女
+            彼
+            です
+            あります
+            おります
+            います
+            は
+            が
+            の
+            に
+            を
+            で
+            え
+            から
+            まで
+            より
+            も
+            どの
+            と
+            し
+            それで
+            しかし
+            .
+             </summary>
+        </member>
+        <member name="P:Microsoft.ML.Transforms.Properties.Resources.Norwegian_Bokmal">
+             <summary>
+               Looks up a localized string similar to alle
+            andre
+            arbeid
+            av
+            begge
+            bort
+            bra
+            bruke
+            da
+            denne
+            der
+            deres
+            det
+            din
+            disse
+            du
+            eller
+            en
+            ene
+            eneste
+            enhver
+            enn
+            er
+            et
+            folk
+            for
+            fordi
+            forsøke
+            fra
+            få
+            før
+            først
+            gjorde
+            gjøre
+            god
+            gå
+            ha
+            hadde
+            han
+            hans
+            hennes
+            her
+            hva
+            hvem
+            hver
+            hvilken
+            hvis
+            hvor
+            hvordan
+            hvorfor
+            i
+            ikke
+            inn
+            innen
+            kan
+            kunne
+            lage
+            lang
+            lik
+            like
+            makt
+            mange
+            med
+            meg
+            meget
+            men
+            mens
+            mer
+            mest
+            min
+            mye
+            må
+            måte
+            navn
+            nei
+            ny
+            nå
+            når
+            og
+            også
+            om
+            opp
+            oss
+            over
+            part
+            punkt
+            på
+            rett
+            rikti [rest of string was truncated]&quot;;.
+             </summary>
+        </member>
+        <member name="P:Microsoft.ML.Transforms.Properties.Resources.Polish">
+             <summary>
+               Looks up a localized string similar to ach
+            aj
+            albo
+            bardzo
+            bez
+            bo
+            być
+            ci
+            ciebie
+            cię
+            co
+            czy
+            daleko
+            dla
+            dlaczego
+            dlatego
+            do
+            dobrze
+            dokąd
+            dość
+            dużo
+            dwa
+            dwaj
+            dwie
+            dwoje
+            dzisiaj
+            dziś
+            gdyby
+            gdzie
+            go
+            ich
+            ile
+            im
+            inny
+            ja
+            jak
+            jakby
+            jaki
+            je
+            jeden
+            jedna
+            jedno
+            jego
+            jej
+            jemu
+            jest
+            jestem
+            jeśli
+            jeżeli
+            już
+            ją
+            każdy
+            kiedy
+            kierunku
+            kto
+            ku
+            lub
+            ma
+            mają
+            mam
+            mi
+            mnie
+            mną
+            moi
+            moja
+            moje
+            może
+            mu
+            my
+            mój
+            na
+            nam
+            nami
+            nas
+            nasi
+            nasz
+            nasza
+            nasze
+            natychmiast
+            nic
+            nich
+            nie
+            niego
+            niej
+            niemu
+            nigdy
+            n [rest of string was truncated]&quot;;.
+             </summary>
+        </member>
+        <member name="P:Microsoft.ML.Transforms.Properties.Resources.Portuguese">
+             <summary>
+               Looks up a localized string similar to último
+            é
+            acerca
+            agora
+            algumas
+            alguns
+            ali
+            ambos
+            antes
+            apontar
+            aquela
+            aquelas
+            aquele
+            aqueles
+            aqui
+            atrás
+            bem
+            bom
+            cada
+            caminho
+            cima
+            com
+            como
+            comprido
+            conhecido
+            corrente
+            das
+            debaixo
+            dentro
+            desde
+            desligado
+            deve
+            devem
+            deverá
+            direita
+            diz
+            dizer
+            dois
+            dos
+            e
+            ela
+            ele
+            eles
+            em
+            enquanto
+            então
+            está
+            estão
+            estado
+            estar
+            estará
+            este
+            estes
+            esteve
+            estive
+            estivemos
+            estiveram
+            eu
+            fará
+            faz
+            fazer
+            fazia
+            fez
+            fim
+            foi
+            fora
+            horas
+            iniciar
+            inicio
+            ir
+            irá
+            isto
+            ligado
+            maio [rest of string was truncated]&quot;;.
+             </summary>
+        </member>
+        <member name="P:Microsoft.ML.Transforms.Properties.Resources.Portuguese_Brazilian">
+             <summary>
+               Looks up a localized string similar to último
+            é
+            acerca
+            agora
+            algumas
+            alguns
+            ali
+            ambos
+            antes
+            apontar
+            aquela
+            aquelas
+            aquele
+            aqueles
+            aqui
+            atrás
+            bem
+            bom
+            cada
+            caminho
+            cima
+            com
+            como
+            comprido
+            conhecido
+            corrente
+            das
+            debaixo
+            dentro
+            desde
+            desligado
+            deve
+            devem
+            deverá
+            direita
+            diz
+            dizer
+            dois
+            dos
+            e
+            ela
+            ele
+            eles
+            em
+            enquanto
+            então
+            está
+            estão
+            estado
+            estar
+            estará
+            este
+            estes
+            esteve
+            estive
+            estivemos
+            estiveram
+            eu
+            fará
+            faz
+            fazer
+            fazia
+            fez
+            fim
+            foi
+            fora
+            horas
+            iniciar
+            inicio
+            ir
+            irá
+            isto
+            ligado
+            maio [rest of string was truncated]&quot;;.
+             </summary>
+        </member>
+        <member name="P:Microsoft.ML.Transforms.Properties.Resources.Russian">
+             <summary>
+               Looks up a localized string similar to а
+            е
+            и
+            ж
+            м
+            о
+            на
+            не
+            ни
+            об
+            но
+            он
+            мне
+            мои
+            мож
+            она
+            они
+            оно
+            мной
+            много
+            многочисленное
+            многочисленная
+            многочисленные
+            многочисленный
+            мною
+            мой
+            мог
+            могут
+            можно
+            может
+            можхо
+            мор
+            моя
+            моё
+            мочь
+            над
+            нее
+            оба
+            нам
+            нем
+            нами
+            ними
+            мимо
+            немного
+            одной
+            одного
+            менее
+            однажды
+            однако
+            меня
+            нему
+            меньше
+            ней
+            наверху
+            него
+            ниже
+            мало
+            надо
+            один
+            одиннадцать
+            одиннадцатый
+            назад
+            наиболее
+            недавно
+            миллионов
+            недалеко
+            между
+            низко
+            меля
+            нельзя
+            нибудь
+            непрерывно
+            наконец
+            никогда
+            ник [rest of string was truncated]&quot;;.
+             </summary>
+        </member>
+        <member name="P:Microsoft.ML.Transforms.Properties.Resources.Spanish">
+             <summary>
+               Looks up a localized string similar to ésa
+            ésta
+            éste
+            última
+            últimas
+            último
+            últimos
+            aún
+            a
+            la
+            vez
+            a.m.
+            abierto
+            abunda
+            acaba
+            además
+            ahora
+            al
+            algún
+            alguna
+            alguno
+            alrededor
+            alta
+            altas
+            alto
+            altos
+            am
+            ambas
+            ambos
+            antes
+            aquél
+            aquélla
+            aquí
+            aquel
+            aquella
+            aquellas
+            aquello
+            aquellos
+            así
+            atardecer
+            aunque
+            básicamente
+            b
+            c
+            cada
+            casi
+            celebran
+            centro
+            cercanía
+            cierta
+            ciertas
+            cierto
+            ciertos
+            común
+            comúnmente
+            como
+            complemento
+            complementos
+            completamente
+            comunes
+            con
+            conforme
+            considerable
+            considerada
+            consider [rest of string was truncated]&quot;;.
+             </summary>
+        </member>
+        <member name="P:Microsoft.ML.Transforms.Properties.Resources.Swedish">
+             <summary>
+               Looks up a localized string similar to aderton
+            adertonde
+            adjö
+            aldrig
+            alla
+            allas
+            allt
+            alltid
+            alltså
+            än
+            andra
+            andras
+            annan
+            annat
+            ännu
+            artonde
+            arton
+            åtminstone
+            att
+            åtta
+            åttio
+            åttionde
+            åttonde
+            av
+            även
+            båda
+            bådas
+            bakom
+            bara
+            bäst
+            bättre
+            behöva
+            behövas
+            behövde
+            behövt
+            beslut
+            beslutat
+            beslutit
+            bland
+            blev
+            bli
+            blir
+            blivit
+            bort
+            borta
+            bra
+            då
+            dag
+            dagar
+            dagarna
+            dagen
+            där
+            därför
+            de
+            del
+            delen
+            dem
+            den
+            deras
+            dess
+            det
+            detta
+            dig
+            din
+            dina
+            dit
+            ditt
+            dock
+            du
+            efter
+            eftersom
+            elfte
+            eller
+            elva
+            en
+            enk [rest of string was truncated]&quot;;.
+             </summary>
+        </member>
+        <member name="T:Microsoft.ML.Transforms.Text.WordTokenizerExtensions">
+            <summary>
+            Extensions for statically typed word tokenizer.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Transforms.Text.WordTokenizerExtensions.TokenizeText(Microsoft.ML.Data.StaticPipe.Runtime.Scalar{System.String},System.String)">
+            <summary>
+            Tokenize incoming text using <paramref name="separators"/> and output the tokens.
+            </summary>
+            <param name="input">The column to apply to.</param>
+            <param name="separators">The separators to use (comma separated).</param>
+        </member>
+        <member name="T:Microsoft.ML.Transforms.Text.CharacterTokenizerExtensions">
+            <summary>
+            Extensions for statically typed character tokenizer.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Transforms.Text.CharacterTokenizerExtensions.TokenizeIntoCharacters(Microsoft.ML.Data.StaticPipe.Runtime.Scalar{System.String},System.Boolean)">
+            <summary>
+            Tokenize incoming text into a sequence of characters.
+            </summary>
+            <param name="input">The column to apply to.</param>
+            <param name="useMarkerCharacters">Whether to use marker characters to separate words.</param>
+        </member>
+        <member name="T:Microsoft.ML.Transforms.Text.StopwordRemoverExtensions">
+            <summary>
+            Extensions for statically typed stop word remover.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Transforms.Text.StopwordRemoverExtensions.RemoveStopwords(Microsoft.ML.Data.StaticPipe.Runtime.VarVector{System.String},Microsoft.ML.Runtime.TextAnalytics.StopWordsRemoverTransform.Language)">
+            <summary>
+            Remove stop words from incoming text.
+            </summary>
+            <param name="input">The column to apply to.</param>
+            <param name="language">Langauge of the input text.</param>
+        </member>
+        <member name="T:Microsoft.ML.Transforms.Text.TextNormalizerExtensions">
+            <summary>
+            Extensions for statically typed text normalizer.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Transforms.Text.TextNormalizerExtensions.NormalizeText(Microsoft.ML.Data.StaticPipe.Runtime.Scalar{System.String},Microsoft.ML.Runtime.TextAnalytics.TextNormalizerTransform.CaseNormalizationMode,System.Boolean,System.Boolean,System.Boolean)">
+            <summary>
+            Normalizes input text by changing case, removing diacritical marks, punctuation marks and/or numbers.
+            </summary>
+            <param name="input">The column to apply to.</param>
+            <param name="textCase">Casing text using the rules of the invariant culture.</param>
+            <param name="keepDiacritics">Whether to keep diacritical marks or remove them.</param>
+            <param name="keepPunctuations">Whether to keep punctuation marks or remove them.</param>
+            <param name="keepNumbers">Whether to keep numbers or remove them.</param>
+        </member>
+        <member name="T:Microsoft.ML.Transforms.Text.WordBagEstimatorExtensions">
+            <summary>
+            Extensions for statically typed bag of word converter.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Transforms.Text.WordBagEstimatorExtensions.ToBagofWords(Microsoft.ML.Data.StaticPipe.Runtime.Scalar{System.String},System.Int32,System.Int32,System.Boolean,System.Int32,Microsoft.ML.Runtime.Data.NgramTransform.WeightingCriteria)">
+            <summary>
+            Produces a bag of counts of ngrams (sequences of consecutive words ) in a given text.
+            It does so by building a dictionary of ngrams and using the id in the dictionary as the index in the bag.
+            </summary>
+            <param name="input">The column to apply to.</param>
+            <param name="ngramLength">Ngram length.</param>
+            <param name="skipLength">Maximum number of tokens to skip when constructing an ngram.</param>
+            <param name="allLengths">Whether to include all ngram lengths up to <paramref name="ngramLength"/> or only <paramref name="ngramLength"/>.</param>
+            <param name="maxNumTerms">Maximum number of ngrams to store in the dictionary.</param>
+            <param name="weighting">Statistical measure used to evaluate how important a word is to a document in a corpus.</param>
+        </member>
+        <member name="T:Microsoft.ML.Transforms.Text.WordHashBagEstimatorExtensions">
+            <summary>
+            Extensions for statically typed bag of wordhash converter.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Transforms.Text.WordHashBagEstimatorExtensions.ToBagofHashedWords(Microsoft.ML.Data.StaticPipe.Runtime.Scalar{System.String},System.Int32,System.Int32,System.Int32,System.Boolean,System.UInt32,System.Boolean,System.Int32)">
+            <summary>
+            Produces a bag of counts of ngrams (sequences of consecutive words of length 1-n) in a given text.
+            It does so by hashing each ngram and using the hash value as the index in the bag.
+            </summary>
+            <param name="input">The column to apply to.</param>
+            <param name="hashBits">Number of bits to hash into. Must be between 1 and 30, inclusive.</param>
+            <param name="ngramLength">Ngram length.</param>
+            <param name="skipLength">Maximum number of tokens to skip when constructing an ngram.</param>
+            <param name="allLengths">Whether to include all ngram lengths up to <paramref name="ngramLength"/> or only <paramref name="ngramLength"/>.</param>
+            <param name="seed">Hashing seed.</param>
+            <param name="ordered">Whether the position of each source column should be included in the hash (when there are multiple source columns).</param>
+            <param name="invertHash">Limit the number of keys used to generate the slot name to this many. 0 means no invert hashing, -1 means no limit.</param>
+        </member>
+        <member name="T:Microsoft.ML.Transforms.Text.NgramEstimatorExtensions">
+            <summary>
+            Extensions for statically typed ngram estimator.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Transforms.Text.NgramEstimatorExtensions.ToNgrams(Microsoft.ML.Data.StaticPipe.Runtime.VarVector{Microsoft.ML.Data.StaticPipe.Runtime.Key{System.UInt32,System.String}},System.Int32,System.Int32,System.Boolean,System.Int32,Microsoft.ML.Runtime.Data.NgramTransform.WeightingCriteria)">
+             <summary>
+             Produces a bag of counts of ngrams (sequences of consecutive words ) in a given tokenized text.
+             It does so by building a dictionary of ngrams and using the id in the dictionary as the index in the bag.
+            
+             /// <see cref="M:Microsoft.ML.Transforms.Text.NgramEstimatorExtensions.ToNgrams(Microsoft.ML.Data.StaticPipe.Runtime.VarVector{Microsoft.ML.Data.StaticPipe.Runtime.Key{System.UInt32,System.String}},System.Int32,System.Int32,System.Boolean,System.Int32,Microsoft.ML.Runtime.Data.NgramTransform.WeightingCriteria)"/> is different from <see cref="M:Microsoft.ML.Transforms.Text.WordBagEstimatorExtensions.ToBagofWords(Microsoft.ML.Data.StaticPipe.Runtime.Scalar{System.String},System.Int32,System.Int32,System.Boolean,System.Int32,Microsoft.ML.Runtime.Data.NgramTransform.WeightingCriteria)"/>
+             in a way that <see cref="M:Microsoft.ML.Transforms.Text.NgramEstimatorExtensions.ToNgrams(Microsoft.ML.Data.StaticPipe.Runtime.VarVector{Microsoft.ML.Data.StaticPipe.Runtime.Key{System.UInt32,System.String}},System.Int32,System.Int32,System.Boolean,System.Int32,Microsoft.ML.Runtime.Data.NgramTransform.WeightingCriteria)"/> takes tokenized text as input while <see cref="M:Microsoft.ML.Transforms.Text.WordBagEstimatorExtensions.ToBagofWords(Microsoft.ML.Data.StaticPipe.Runtime.Scalar{System.String},System.Int32,System.Int32,System.Boolean,System.Int32,Microsoft.ML.Runtime.Data.NgramTransform.WeightingCriteria)"/> tokenizes text internally.
+             </summary>
+             <param name="input">The column to apply to.</param>
+             <param name="ngramLength">Ngram length.</param>
+             <param name="skipLength">Maximum number of tokens to skip when constructing an ngram.</param>
+             <param name="allLengths">Whether to include all ngram lengths up to <paramref name="ngramLength"/> or only <paramref name="ngramLength"/>.</param>
+             <param name="maxNumTerms">Maximum number of ngrams to store in the dictionary.</param>
+             <param name="weighting">Statistical measure used to evaluate how important a word is to a document in a corpus.</param>
+        </member>
+        <member name="T:Microsoft.ML.Transforms.Text.NgramHashEstimatorExtensions">
+            <summary>
+            Extensions for statically typed ngram hash estimator.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Transforms.Text.NgramHashEstimatorExtensions.ToNgramsHash(Microsoft.ML.Data.StaticPipe.Runtime.VarVector{Microsoft.ML.Data.StaticPipe.Runtime.Key{System.UInt32,System.String}},System.Int32,System.Int32,System.Int32,System.Boolean,System.UInt32,System.Boolean,System.Int32)">
+             <summary>
+             Produces a bag of counts of ngrams (sequences of consecutive words of length 1-n) in a given tokenized text.
+             It does so by hashing each ngram and using the hash value as the index in the bag.
+            
+             <see cref="M:Microsoft.ML.Transforms.Text.NgramHashEstimatorExtensions.ToNgramsHash(Microsoft.ML.Data.StaticPipe.Runtime.VarVector{Microsoft.ML.Data.StaticPipe.Runtime.Key{System.UInt32,System.String}},System.Int32,System.Int32,System.Int32,System.Boolean,System.UInt32,System.Boolean,System.Int32)"/> is different from <see cref="M:Microsoft.ML.Transforms.Text.WordHashBagEstimatorExtensions.ToBagofHashedWords(Microsoft.ML.Data.StaticPipe.Runtime.Scalar{System.String},System.Int32,System.Int32,System.Int32,System.Boolean,System.UInt32,System.Boolean,System.Int32)"/>
+             in a way that <see cref="M:Microsoft.ML.Transforms.Text.NgramHashEstimatorExtensions.ToNgramsHash(Microsoft.ML.Data.StaticPipe.Runtime.VarVector{Microsoft.ML.Data.StaticPipe.Runtime.Key{System.UInt32,System.String}},System.Int32,System.Int32,System.Int32,System.Boolean,System.UInt32,System.Boolean,System.Int32)"/> takes tokenized text as input while <see cref="M:Microsoft.ML.Transforms.Text.WordHashBagEstimatorExtensions.ToBagofHashedWords(Microsoft.ML.Data.StaticPipe.Runtime.Scalar{System.String},System.Int32,System.Int32,System.Int32,System.Boolean,System.UInt32,System.Boolean,System.Int32)"/> tokenizes text internally.
+             </summary>
+             <param name="input">The column to apply to.</param>
+             <param name="hashBits">Number of bits to hash into. Must be between 1 and 30, inclusive.</param>
+             <param name="ngramLength">Ngram length.</param>
+             <param name="skipLength">Maximum number of tokens to skip when constructing an ngram.</param>
+             <param name="allLengths">Whether to include all ngram lengths up to <paramref name="ngramLength"/> or only <paramref name="ngramLength"/>.</param>
+             <param name="seed">Hashing seed.</param>
+             <param name="ordered">Whether the position of each source column should be included in the hash (when there are multiple source columns).</param>
+             <param name="invertHash">Limit the number of keys used to generate the slot name to this many. 0 means no invert hashing, -1 means no limit.</param>
+        </member>
+        <member name="T:Microsoft.ML.Transforms.WordTokenizer">
+            <summary>
+            Word tokenizer splits text into tokens using the delimiter.
+            For each text input, the output column is a variable vector of text.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Transforms.WordTokenizer.#ctor(Microsoft.ML.Runtime.IHostEnvironment,System.String,System.String,System.String)">
+            <summary>
+            Tokenize incoming text in <paramref name="inputColumn"/> and output the tokens as <paramref name="outputColumn"/>.
+            </summary>
+            <param name="env">The environment.</param>
+            <param name="inputColumn">The column containing text to tokenize.</param>
+            <param name="outputColumn">The column containing output tokens. Null means <paramref name="inputColumn"/> is replaced.</param>
+            <param name="separators">The separators to use (comma separated).</param>
+        </member>
+        <member name="M:Microsoft.ML.Transforms.WordTokenizer.#ctor(Microsoft.ML.Runtime.IHostEnvironment,System.ValueTuple{System.String,System.String}[],System.String)">
+            <summary>
+            Tokenize incoming text in input columns and output the tokens as output columns.
+            </summary>
+            <param name="env">The environment.</param>
+            <param name="columns">Pairs of columns to run the tokenization on.</param>
+            <param name="separators">The separators to use (comma separated).</param>
+        </member>
+        <member name="T:Microsoft.ML.Transforms.CharacterTokenizer">
+            <summary>
+            Character tokenizer splits text into sequences of characters using a sliding window.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Transforms.CharacterTokenizer.#ctor(Microsoft.ML.Runtime.IHostEnvironment,System.String,System.String,System.Boolean)">
+            <summary>
+            Tokenize incoming text in <paramref name="inputColumn"/> and output the tokens as <paramref name="outputColumn"/>.
+            </summary>
+            <param name="env">The environment.</param>
+            <param name="inputColumn">The column containing text to tokenize.</param>
+            <param name="outputColumn">The column containing output tokens. Null means <paramref name="inputColumn"/> is replaced.</param>
+            <param name="useMarkerCharacters">Whether to use marker characters to separate words.</param>
+        </member>
+        <member name="M:Microsoft.ML.Transforms.CharacterTokenizer.#ctor(Microsoft.ML.Runtime.IHostEnvironment,System.ValueTuple{System.String,System.String}[],System.Boolean)">
+            <summary>
+            Tokenize incoming text in input columns and output the tokens as output columns.
+            </summary>
+            <param name="env">The environment.</param>
+            <param name="columns">Pairs of columns to run the tokenization on.</param>
+            <param name="useMarkerCharacters">Whether to use marker characters to separate words.</param>
+        </member>
+        <member name="T:Microsoft.ML.Transforms.StopwordRemover">
+            <summary>
+            Stopword remover removes language-specific lists of stop words (most common words)
+            This is usually applied after tokenizing text, so it compares individual tokens
+            (case-insensitive comparison) to the stopwords.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Transforms.StopwordRemover.#ctor(Microsoft.ML.Runtime.IHostEnvironment,System.String,System.String,Microsoft.ML.Runtime.TextAnalytics.StopWordsRemoverTransform.Language)">
+            <summary>
+            Removes stop words from incoming token streams in <paramref name="inputColumn"/>
+            and outputs the token streams without stopwords as <paramref name="outputColumn"/>.
+            </summary>
+            <param name="env">The environment.</param>
+            <param name="inputColumn">The column containing text to remove stop words on.</param>
+            <param name="outputColumn">The column containing output text. Null means <paramref name="inputColumn"/> is replaced.</param>
+            <param name="language">Langauge of the input text column <paramref name="inputColumn"/>.</param>
+        </member>
+        <member name="M:Microsoft.ML.Transforms.StopwordRemover.#ctor(Microsoft.ML.Runtime.IHostEnvironment,System.ValueTuple{System.String,System.String}[],Microsoft.ML.Runtime.TextAnalytics.StopWordsRemoverTransform.Language)">
+            <summary>
+            Removes stop words from incoming token streams in input columns
+            and outputs the token streams without stop words as output columns.
+            </summary>
+            <param name="env">The environment.</param>
+            <param name="columns">Pairs of columns to remove stop words on.</param>
+            <param name="language">Langauge of the input text columns <paramref name="columns"/>.</param>
+        </member>
+        <member name="T:Microsoft.ML.Transforms.TextNormalizer">
+            <summary>
+            Text normalizer allows normalizing text by changing case (Upper/Lower case), removing diacritical marks, punctuation marks and/or numbers.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Transforms.TextNormalizer.#ctor(Microsoft.ML.Runtime.IHostEnvironment,System.String,System.String,Microsoft.ML.Runtime.TextAnalytics.TextNormalizerTransform.CaseNormalizationMode,System.Boolean,System.Boolean,System.Boolean)">
+            <summary>
+            Normalizes incoming text in <paramref name="inputColumn"/> by changing case, removing diacritical marks, punctuation marks and/or numbers
+            and outputs new text as <paramref name="outputColumn"/>.
+            </summary>
+            <param name="env">The environment.</param>
+            <param name="inputColumn">The column containing text to normalize.</param>
+            <param name="outputColumn">The column containing output tokens. Null means <paramref name="inputColumn"/> is replaced.</param>
+            <param name="textCase">Casing text using the rules of the invariant culture.</param>
+            <param name="keepDiacritics">Whether to keep diacritical marks or remove them.</param>
+            <param name="keepPunctuations">Whether to keep punctuation marks or remove them.</param>
+            <param name="keepNumbers">Whether to keep numbers or remove them.</param>
+        </member>
+        <member name="M:Microsoft.ML.Transforms.TextNormalizer.#ctor(Microsoft.ML.Runtime.IHostEnvironment,System.ValueTuple{System.String,System.String}[],Microsoft.ML.Runtime.TextAnalytics.TextNormalizerTransform.CaseNormalizationMode,System.Boolean,System.Boolean,System.Boolean)">
+            <summary>
+            Normalizes incoming text in input columns by changing case, removing diacritical marks, punctuation marks and/or numbers
+            and outputs new text as output columns.
+            </summary>
+            <param name="env">The environment.</param>
+            <param name="columns">Pairs of columns to run the text normalization on.</param>
+            <param name="textCase">Casing text using the rules of the invariant culture.</param>
+            <param name="keepDiacritics">Whether to keep diacritical marks or remove them.</param>
+            <param name="keepPunctuations">Whether to keep punctuation marks or remove them.</param>
+            <param name="keepNumbers">Whether to keep numbers or remove them.</param>
+        </member>
+        <member name="T:Microsoft.ML.Transforms.WordBagEstimator">
+            <summary>
+            Produces a bag of counts of ngrams (sequences of consecutive words) in a given text.
+            It does so by building a dictionary of ngrams and using the id in the dictionary as the index in the bag.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Transforms.WordBagEstimator.#ctor(Microsoft.ML.Runtime.IHostEnvironment,System.String,System.String,System.Int32,System.Int32,System.Boolean,System.Int32,Microsoft.ML.Runtime.Data.NgramTransform.WeightingCriteria)">
+            <summary>
+            Produces a bag of counts of ngrams (sequences of consecutive words) in <paramref name="inputColumn"/>
+            and outputs bag of word vector as <paramref name="outputColumn"/>
+            </summary>
+            <param name="env">The environment.</param>
+            <param name="inputColumn">The column containing text to compute bag of word vector.</param>
+            <param name="outputColumn">The column containing bag of word vector. Null means <paramref name="inputColumn"/> is replaced.</param>
+            <param name="ngramLength">Ngram length.</param>
+            <param name="skipLength">Maximum number of tokens to skip when constructing an ngram.</param>
+            <param name="allLengths">Whether to include all ngram lengths up to <paramref name="ngramLength"/> or only <paramref name="ngramLength"/>.</param>
+            <param name="maxNumTerms">Maximum number of ngrams to store in the dictionary.</param>
+            <param name="weighting">Statistical measure used to evaluate how important a word is to a document in a corpus.</param>
+        </member>
+        <member name="M:Microsoft.ML.Transforms.WordBagEstimator.#ctor(Microsoft.ML.Runtime.IHostEnvironment,System.String[],System.String,System.Int32,System.Int32,System.Boolean,System.Int32,Microsoft.ML.Runtime.Data.NgramTransform.WeightingCriteria)">
+            <summary>
+            Produces a bag of counts of ngrams (sequences of consecutive words) in <paramref name="inputColumns"/>
+            and outputs bag of word vector as <paramref name="outputColumn"/>
+            </summary>
+            <param name="env">The environment.</param>
+            <param name="inputColumns">The columns containing text to compute bag of word vector.</param>
+            <param name="outputColumn">The column containing output tokens.</param>
+            <param name="ngramLength">Ngram length.</param>
+            <param name="skipLength">Maximum number of tokens to skip when constructing an ngram.</param>
+            <param name="allLengths">Whether to include all ngram lengths up to <paramref name="ngramLength"/> or only <paramref name="ngramLength"/>.</param>
+            <param name="maxNumTerms">Maximum number of ngrams to store in the dictionary.</param>
+            <param name="weighting">Statistical measure used to evaluate how important a word is to a document in a corpus.</param>
+        </member>
+        <member name="M:Microsoft.ML.Transforms.WordBagEstimator.#ctor(Microsoft.ML.Runtime.IHostEnvironment,System.ValueTuple{System.String[],System.String}[],System.Int32,System.Int32,System.Boolean,System.Int32,Microsoft.ML.Runtime.Data.NgramTransform.WeightingCriteria)">
+            <summary>
+            Produces a bag of counts of ngrams (sequences of consecutive words) in <paramref name="columns.inputs.inputs"/>
+            and outputs bag of word vector for each output in <paramref name="columns.output.output"/>
+            </summary>
+            <param name="env">The environment.</param>
+            <param name="columns">Pairs of columns to compute bag of word vector.</param>
+            <param name="ngramLength">Ngram length.</param>
+            <param name="skipLength">Maximum number of tokens to skip when constructing an ngram.</param>
+            <param name="allLengths">Whether to include all ngram lengths up to <paramref name="ngramLength"/> or only <paramref name="ngramLength"/>.</param>
+            <param name="maxNumTerms">Maximum number of ngrams to store in the dictionary.</param>
+            <param name="weighting">Statistical measure used to evaluate how important a word is to a document in a corpus.</param>
+        </member>
+        <member name="T:Microsoft.ML.Transforms.WordHashBagEstimator">
+            <summary>
+            Produces a bag of counts of ngrams (sequences of consecutive words of length 1-n) in a given text.
+            It does so by hashing each ngram and using the hash value as the index in the bag.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Transforms.WordHashBagEstimator.#ctor(Microsoft.ML.Runtime.IHostEnvironment,System.String,System.String,System.Int32,System.Int32,System.Int32,System.Boolean,System.UInt32,System.Boolean,System.Int32)">
+            <summary>
+            Produces a bag of counts of hashed ngrams in <paramref name="inputColumn"/>
+            and outputs bag of word vector as <paramref name="outputColumn"/>
+            </summary>
+            <param name="env">The environment.</param>
+            <param name="inputColumn">The column containing text to compute bag of word vector.</param>
+            <param name="outputColumn">The column containing bag of word vector. Null means <paramref name="inputColumn"/> is replaced.</param>
+            <param name="hashBits">Number of bits to hash into. Must be between 1 and 30, inclusive.</param>
+            <param name="ngramLength">Ngram length.</param>
+            <param name="skipLength">Maximum number of tokens to skip when constructing an ngram.</param>
+            <param name="allLengths">Whether to include all ngram lengths up to <paramref name="ngramLength"/> or only <paramref name="ngramLength"/>.</param>
+            <param name="seed">Hashing seed.</param>
+            <param name="ordered">Whether the position of each source column should be included in the hash (when there are multiple source columns).</param>
+            <param name="invertHash">Limit the number of keys used to generate the slot name to this many. 0 means no invert hashing, -1 means no limit.</param>
+        </member>
+        <member name="M:Microsoft.ML.Transforms.WordHashBagEstimator.#ctor(Microsoft.ML.Runtime.IHostEnvironment,System.String[],System.String,System.Int32,System.Int32,System.Int32,System.Boolean,System.UInt32,System.Boolean,System.Int32)">
+            <summary>
+            Produces a bag of counts of hashed ngrams in <paramref name="inputColumns"/>
+            and outputs bag of word vector as <paramref name="outputColumn"/>
+            </summary>
+            <param name="env">The environment.</param>
+            <param name="inputColumns">The columns containing text to compute bag of word vector.</param>
+            <param name="outputColumn">The column containing output tokens.</param>
+            <param name="hashBits">Number of bits to hash into. Must be between 1 and 30, inclusive.</param>
+            <param name="ngramLength">Ngram length.</param>
+            <param name="skipLength">Maximum number of tokens to skip when constructing an ngram.</param>
+            <param name="allLengths">Whether to include all ngram lengths up to <paramref name="ngramLength"/> or only <paramref name="ngramLength"/>.</param>
+            <param name="seed">Hashing seed.</param>
+            <param name="ordered">Whether the position of each source column should be included in the hash (when there are multiple source columns).</param>
+            <param name="invertHash">Limit the number of keys used to generate the slot name to this many. 0 means no invert hashing, -1 means no limit.</param>
+        </member>
+        <member name="M:Microsoft.ML.Transforms.WordHashBagEstimator.#ctor(Microsoft.ML.Runtime.IHostEnvironment,System.ValueTuple{System.String[],System.String}[],System.Int32,System.Int32,System.Int32,System.Boolean,System.UInt32,System.Boolean,System.Int32)">
+            <summary>
+            Produces a bag of counts of hashed ngrams in <paramref name="columns.inputs.inputs"/>
+            and outputs bag of word vector for each output in <paramref name="columns.output.output"/>
+            </summary>
+            <param name="env">The environment.</param>
+            <param name="columns">Pairs of columns to compute bag of word vector.</param>
+            <param name="hashBits">Number of bits to hash into. Must be between 1 and 30, inclusive.</param>
+            <param name="ngramLength">Ngram length.</param>
+            <param name="skipLength">Maximum number of tokens to skip when constructing an ngram.</param>
+            <param name="allLengths">Whether to include all ngram lengths up to <paramref name="ngramLength"/> or only <paramref name="ngramLength"/>.</param>
+            <param name="seed">Hashing seed.</param>
+            <param name="ordered">Whether the position of each source column should be included in the hash (when there are multiple source columns).</param>
+            <param name="invertHash">Limit the number of keys used to generate the slot name to this many. 0 means no invert hashing, -1 means no limit.</param>
+        </member>
+        <member name="T:Microsoft.ML.Transforms.NgramEstimator">
+            <summary>
+            Produces a bag of counts of ngrams(sequences of consecutive values of length 1-n) in a given vector of keys.
+            It does so by building a dictionary of ngrams and using the id in the dictionary as the index in the bag.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Transforms.NgramEstimator.#ctor(Microsoft.ML.Runtime.IHostEnvironment,System.String,System.String,System.Int32,System.Int32,System.Boolean,System.Int32,Microsoft.ML.Runtime.Data.NgramTransform.WeightingCriteria)">
+            <summary>
+            Produces a bag of counts of ngrams (sequences of consecutive words) in <paramref name="inputColumn"/>
+            and outputs bag of word vector as <paramref name="outputColumn"/>
+            </summary>
+            <param name="env">The environment.</param>
+            <param name="inputColumn">The column containing text to compute bag of word vector.</param>
+            <param name="outputColumn">The column containing bag of word vector. Null means <paramref name="inputColumn"/> is replaced.</param>
+            <param name="ngramLength">Ngram length.</param>
+            <param name="skipLength">Maximum number of tokens to skip when constructing an ngram.</param>
+            <param name="allLengths">Whether to include all ngram lengths up to <paramref name="ngramLength"/> or only <paramref name="ngramLength"/>.</param>
+            <param name="maxNumTerms">Maximum number of ngrams to store in the dictionary.</param>
+            <param name="weighting">Statistical measure used to evaluate how important a word is to a document in a corpus.</param>
+        </member>
+        <member name="M:Microsoft.ML.Transforms.NgramEstimator.#ctor(Microsoft.ML.Runtime.IHostEnvironment,System.ValueTuple{System.String,System.String}[],System.Int32,System.Int32,System.Boolean,System.Int32,Microsoft.ML.Runtime.Data.NgramTransform.WeightingCriteria)">
+            <summary>
+            Produces a bag of counts of ngrams (sequences of consecutive words) in <paramref name="columns.inputs.inputs"/>
+            and outputs bag of word vector for each output in <paramref name="columns.output.output"/>
+            </summary>
+            <param name="env">The environment.</param>
+            <param name="columns">Pairs of columns to compute bag of word vector.</param>
+            <param name="ngramLength">Ngram length.</param>
+            <param name="skipLength">Maximum number of tokens to skip when constructing an ngram.</param>
+            <param name="allLengths">Whether to include all ngram lengths up to <paramref name="ngramLength"/> or only <paramref name="ngramLength"/>.</param>
+            <param name="maxNumTerms">Maximum number of ngrams to store in the dictionary.</param>
+            <param name="weighting">Statistical measure used to evaluate how important a word is to a document in a corpus.</param>
+        </member>
+        <member name="T:Microsoft.ML.Transforms.NgramHashEstimator">
+             <summary>
+             Produces a bag of counts of ngrams (sequences of consecutive words of length 1-n) in a given text.
+             It does so by hashing each ngram and using the hash value as the index in the bag.
+            
+             <see cref="T:Microsoft.ML.Transforms.NgramHashEstimator"/> is different from <see cref="T:Microsoft.ML.Transforms.WordHashBagEstimator"/> in a way that <see cref="T:Microsoft.ML.Transforms.NgramHashEstimator"/>
+             takes tokenized text as input while <see cref="T:Microsoft.ML.Transforms.WordHashBagEstimator"/> tokenizes text internally.
+             </summary>
+        </member>
+        <member name="M:Microsoft.ML.Transforms.NgramHashEstimator.#ctor(Microsoft.ML.Runtime.IHostEnvironment,System.String,System.String,System.Int32,System.Int32,System.Int32,System.Boolean,System.UInt32,System.Boolean,System.Int32)">
+             <summary>
+             Produces a bag of counts of hashed ngrams in <paramref name="inputColumn"/>
+             and outputs ngram vector as <paramref name="outputColumn"/>
+            
+             <see cref="T:Microsoft.ML.Transforms.NgramHashEstimator"/> is different from <see cref="T:Microsoft.ML.Transforms.WordHashBagEstimator"/> in a way that <see cref="T:Microsoft.ML.Transforms.NgramHashEstimator"/>
+             takes tokenized text as input while <see cref="T:Microsoft.ML.Transforms.WordHashBagEstimator"/> tokenizes text internally.
+             </summary>
+             <param name="env">The environment.</param>
+             <param name="inputColumn">The column containing text to compute bag of word vector.</param>
+             <param name="outputColumn">The column containing bag of word vector. Null means <paramref name="inputColumn"/> is replaced.</param>
+             <param name="hashBits">Number of bits to hash into. Must be between 1 and 30, inclusive.</param>
+             <param name="ngramLength">Ngram length.</param>
+             <param name="skipLength">Maximum number of tokens to skip when constructing an ngram.</param>
+             <param name="allLengths">Whether to include all ngram lengths up to <paramref name="ngramLength"/> or only <paramref name="ngramLength"/>.</param>
+             <param name="seed">Hashing seed.</param>
+             <param name="ordered">Whether the position of each source column should be included in the hash (when there are multiple source columns).</param>
+             <param name="invertHash">Limit the number of keys used to generate the slot name to this many. 0 means no invert hashing, -1 means no limit.</param>
+        </member>
+        <member name="M:Microsoft.ML.Transforms.NgramHashEstimator.#ctor(Microsoft.ML.Runtime.IHostEnvironment,System.String[],System.String,System.Int32,System.Int32,System.Int32,System.Boolean,System.UInt32,System.Boolean,System.Int32)">
+             <summary>
+             Produces a bag of counts of hashed ngrams in <paramref name="inputColumns"/>
+             and outputs ngram vector as <paramref name="outputColumn"/>
+            
+             <see cref="T:Microsoft.ML.Transforms.NgramHashEstimator"/> is different from <see cref="T:Microsoft.ML.Transforms.WordHashBagEstimator"/> in a way that <see cref="T:Microsoft.ML.Transforms.NgramHashEstimator"/>
+             takes tokenized text as input while <see cref="T:Microsoft.ML.Transforms.WordHashBagEstimator"/> tokenizes text internally.
+             </summary>
+             <param name="env">The environment.</param>
+             <param name="inputColumns">The columns containing text to compute bag of word vector.</param>
+             <param name="outputColumn">The column containing output tokens.</param>
+             <param name="hashBits">Number of bits to hash into. Must be between 1 and 30, inclusive.</param>
+             <param name="ngramLength">Ngram length.</param>
+             <param name="skipLength">Maximum number of tokens to skip when constructing an ngram.</param>
+             <param name="allLengths">Whether to include all ngram lengths up to <paramref name="ngramLength"/> or only <paramref name="ngramLength"/>.</param>
+             <param name="seed">Hashing seed.</param>
+             <param name="ordered">Whether the position of each source column should be included in the hash (when there are multiple source columns).</param>
+             <param name="invertHash">Limit the number of keys used to generate the slot name to this many. 0 means no invert hashing, -1 means no limit.</param>
+        </member>
+        <member name="M:Microsoft.ML.Transforms.NgramHashEstimator.#ctor(Microsoft.ML.Runtime.IHostEnvironment,System.ValueTuple{System.String[],System.String}[],System.Int32,System.Int32,System.Int32,System.Boolean,System.UInt32,System.Boolean,System.Int32)">
+             <summary>
+             Produces a bag of counts of hashed ngrams in <paramref name="columns.inputs.inputs"/>
+             and outputs ngram vector for each output in <paramref name="columns.output.output"/>
+            
+             <see cref="T:Microsoft.ML.Transforms.NgramHashEstimator"/> is different from <see cref="T:Microsoft.ML.Transforms.WordHashBagEstimator"/> in a way that <see cref="T:Microsoft.ML.Transforms.NgramHashEstimator"/>
+             takes tokenized text as input while <see cref="T:Microsoft.ML.Transforms.WordHashBagEstimator"/> tokenizes text internally.
+             </summary>
+             <param name="env">The environment.</param>
+             <param name="columns">Pairs of columns to compute bag of word vector.</param>
+             <param name="hashBits">Number of bits to hash into. Must be between 1 and 30, inclusive.</param>
+             <param name="ngramLength">Ngram length.</param>
+             <param name="skipLength">Maximum number of tokens to skip when constructing an ngram.</param>
+             <param name="allLengths">Whether to include all ngram lengths up to <paramref name="ngramLength"/> or only <paramref name="ngramLength"/>.</param>
+             <param name="seed">Hashing seed.</param>
+             <param name="ordered">Whether the position of each source column should be included in the hash (when there are multiple source columns).</param>
+             <param name="invertHash">Limit the number of keys used to generate the slot name to this many. 0 means no invert hashing, -1 means no limit.</param>
+        </member>
+        <member name="T:Microsoft.ML.Transforms.LpNormalizer">
+            <summary>
+         The LpNormalizer transforms, normalizes vectors (rows) individually by rescaling them to unit norm (L2, L1 or LInf). 
+         <para>Performs the following operation on a vector X:</para> 
+         <para>Y = (X - M) / D</para> 
+         <para>where M is mean and D is either L2 norm, L1 norm or LInf norm.</para>
+       </summary><remarks>
+        Scaling inputs to unit norms is a common operation for text classification or clustering.
+        For more information see: <a href="https://www.cs.stanford.edu/~acoates/papers/coatesleeng_aistats_2011.pdf" />
+      </remarks><seealso cref="T:Microsoft.ML.Transforms.GlobalContrastNormalizer" /><example>
+        <code language="csharp">
+          pipeline.Add(new LpNormalizer("FeatureCol")
+          { 
+              NormKind = LpNormNormalizerTransformNormalizerKind.L1Norm
+          });
+        </code>
+      </example>
+        </member>
+        <member name="M:Microsoft.ML.Transforms.LpNormalizer.#ctor(Microsoft.ML.Runtime.IHostEnvironment,System.String,System.String,Microsoft.ML.Runtime.Data.LpNormNormalizerTransform.NormalizerKind,System.Boolean)">
+            <summary>
+         The LpNormalizer transforms, normalizes vectors (rows) individually by rescaling them to unit norm (L2, L1 or LInf). 
+         <para>Performs the following operation on a vector X:</para> 
+         <para>Y = (X - M) / D</para> 
+         <para>where M is mean and D is either L2 norm, L1 norm or LInf norm.</para>
+       </summary><remarks>
+        Scaling inputs to unit norms is a common operation for text classification or clustering.
+        For more information see: <a href="https://www.cs.stanford.edu/~acoates/papers/coatesleeng_aistats_2011.pdf" />
+      </remarks><seealso cref="T:Microsoft.ML.Transforms.GlobalContrastNormalizer" /><example>
+        <code language="csharp">
+          pipeline.Add(new LpNormalizer("FeatureCol")
+          { 
+              NormKind = LpNormNormalizerTransformNormalizerKind.L1Norm
+          });
+        </code>
+      </example>
+            <param name="env">The environment.</param>
+            <param name="inputColumn">The column containing text to tokenize.</param>
+            <param name="outputColumn">The column containing output tokens. Null means <paramref name="inputColumn" /> is replaced.</param>
+            <param name="normKind">Type of norm to use to normalize each sample.</param>
+            <param name="subMean">Subtract mean from each value before normalizing.</param>
+        </member>
+        <member name="M:Microsoft.ML.Transforms.LpNormalizer.#ctor(Microsoft.ML.Runtime.IHostEnvironment,System.ValueTuple{System.String,System.String}[],Microsoft.ML.Runtime.Data.LpNormNormalizerTransform.NormalizerKind,System.Boolean)">
+            <summary>
+         The LpNormalizer transforms, normalizes vectors (rows) individually by rescaling them to unit norm (L2, L1 or LInf). 
+         <para>Performs the following operation on a vector X:</para> 
+         <para>Y = (X - M) / D</para> 
+         <para>where M is mean and D is either L2 norm, L1 norm or LInf norm.</para>
+       </summary><remarks>
+        Scaling inputs to unit norms is a common operation for text classification or clustering.
+        For more information see: <a href="https://www.cs.stanford.edu/~acoates/papers/coatesleeng_aistats_2011.pdf" />
+      </remarks><seealso cref="T:Microsoft.ML.Transforms.GlobalContrastNormalizer" /><example>
+        <code language="csharp">
+          pipeline.Add(new LpNormalizer("FeatureCol")
+          { 
+              NormKind = LpNormNormalizerTransformNormalizerKind.L1Norm
+          });
+        </code>
+      </example>
+            <param name="env">The environment.</param>
+            <param name="columns">Pairs of columns to run the tokenization on.</param>
+            <param name="normKind">Type of norm to use to normalize each sample.</param>
+            <param name="subMean">Subtract mean from each value before normalizing.</param>
+        </member>
+        <member name="T:Microsoft.ML.Transforms.GlobalContrastNormalizer">
+            <summary>
+        <para>Performs a global contrast normalization on input values:</para>
+        <para>Y = (s * X - M) / D</para> 
+        <para>where s is a scale, M is mean and D is either the L2 norm or standard deviation.</para>
+       </summary><remarks>
+        Scaling inputs to unit norms is a common operation for text classification or clustering.
+        For more information see: 
+        <a href="https://www.cs.stanford.edu/~acoates/papers/coatesleeng_aistats_2011.pdf">An Analysis of Single-Layer Networks in Unsupervised Feature Learning</a>
+      </remarks><seealso cref="T:Microsoft.ML.Transforms.LpNormalizer" /><example>
+        <code language="csharp">
+          pipeline.Add(new GlobalContrastNormalizer("FeatureCol")
+          { 
+              SubMean= false
+          });
+        </code>
+      </example>
+        </member>
+        <member name="M:Microsoft.ML.Transforms.GlobalContrastNormalizer.#ctor(Microsoft.ML.Runtime.IHostEnvironment,System.String,System.String,System.Boolean,System.Boolean,System.Single)">
+            <summary>
+        <para>Performs a global contrast normalization on input values:</para>
+        <para>Y = (s * X - M) / D</para> 
+        <para>where s is a scale, M is mean and D is either the L2 norm or standard deviation.</para>
+       </summary><remarks>
+        Scaling inputs to unit norms is a common operation for text classification or clustering.
+        For more information see: 
+        <a href="https://www.cs.stanford.edu/~acoates/papers/coatesleeng_aistats_2011.pdf">An Analysis of Single-Layer Networks in Unsupervised Feature Learning</a>
+      </remarks><seealso cref="T:Microsoft.ML.Transforms.LpNormalizer" /><example>
+        <code language="csharp">
+          pipeline.Add(new GlobalContrastNormalizer("FeatureCol")
+          { 
+              SubMean= false
+          });
+        </code>
+      </example>
+            <param name="env">The environment.</param>
+            <param name="inputColumn">The column containing text to tokenize.</param>
+            <param name="outputColumn">The column containing output tokens. Null means <paramref name="inputColumn" /> is replaced.</param>
+            <param name="subMean">Subtract mean from each value before normalizing.</param>
+            <param name="useStdDev">Normalize by standard deviation rather than L2 norm.</param>
+            <param name="scale">Scale features by this value.</param>
+        </member>
+        <member name="M:Microsoft.ML.Transforms.GlobalContrastNormalizer.#ctor(Microsoft.ML.Runtime.IHostEnvironment,System.ValueTuple{System.String,System.String}[],System.Boolean,System.Boolean,System.Single)">
+            <summary>
+        <para>Performs a global contrast normalization on input values:</para>
+        <para>Y = (s * X - M) / D</para> 
+        <para>where s is a scale, M is mean and D is either the L2 norm or standard deviation.</para>
+       </summary><remarks>
+        Scaling inputs to unit norms is a common operation for text classification or clustering.
+        For more information see: 
+        <a href="https://www.cs.stanford.edu/~acoates/papers/coatesleeng_aistats_2011.pdf">An Analysis of Single-Layer Networks in Unsupervised Feature Learning</a>
+      </remarks><seealso cref="T:Microsoft.ML.Transforms.LpNormalizer" /><example>
+        <code language="csharp">
+          pipeline.Add(new GlobalContrastNormalizer("FeatureCol")
+          { 
+              SubMean= false
+          });
+        </code>
+      </example>
+            <param name="env">The environment.</param>
+            <param name="columns">Pairs of columns to run the tokenization on.</param>
+            <param name="subMean">Subtract mean from each value before normalizing.</param>
+            <param name="useStdDev">Normalize by standard deviation rather than L2 norm.</param>
+            <param name="scale">Scale features by this value.</param>
+        </member>
+        <member name="T:Microsoft.ML.Transforms.LpNormNormalizerExtensions">
+            <summary>
+            Extensions for statically typed LpNormalizer estimator.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Transforms.LpNormNormalizerExtensions.LpNormalize(Microsoft.ML.Data.StaticPipe.Runtime.Vector{System.Single},Microsoft.ML.Runtime.Data.LpNormNormalizerTransform.NormalizerKind,System.Boolean)">
+            <summary>
+         The LpNormalizer transforms, normalizes vectors (rows) individually by rescaling them to unit norm (L2, L1 or LInf). 
+         <para>Performs the following operation on a vector X:</para> 
+         <para>Y = (X - M) / D</para> 
+         <para>where M is mean and D is either L2 norm, L1 norm or LInf norm.</para>
+       </summary><remarks>
+        Scaling inputs to unit norms is a common operation for text classification or clustering.
+        For more information see: <a href="https://www.cs.stanford.edu/~acoates/papers/coatesleeng_aistats_2011.pdf" />
+      </remarks><seealso cref="T:Microsoft.ML.Transforms.GlobalContrastNormalizer" /><example>
+        <code language="csharp">
+          pipeline.Add(new LpNormalizer("FeatureCol")
+          { 
+              NormKind = LpNormNormalizerTransformNormalizerKind.L1Norm
+          });
+        </code>
+      </example>
+            <param name="input">The column to apply to.</param>
+            <param name="normKind">Type of norm to use to normalize each sample.</param>
+            <param name="subMean">Subtract mean from each value before normalizing.</param>
+        </member>
+        <member name="T:Microsoft.ML.Transforms.GcNormalizerExtensions">
+            <summary>
+            Extensions for statically typed GcNormalizer estimator.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Transforms.GcNormalizerExtensions.GlobalContrastNormalize(Microsoft.ML.Data.StaticPipe.Runtime.Vector{System.Single},System.Boolean,System.Boolean,System.Single)">
+            <summary>
+        <para>Performs a global contrast normalization on input values:</para>
+        <para>Y = (s * X - M) / D</para> 
+        <para>where s is a scale, M is mean and D is either the L2 norm or standard deviation.</para>
+       </summary><remarks>
+        Scaling inputs to unit norms is a common operation for text classification or clustering.
+        For more information see: 
+        <a href="https://www.cs.stanford.edu/~acoates/papers/coatesleeng_aistats_2011.pdf">An Analysis of Single-Layer Networks in Unsupervised Feature Learning</a>
+      </remarks><seealso cref="T:Microsoft.ML.Transforms.LpNormalizer" /><example>
+        <code language="csharp">
+          pipeline.Add(new GlobalContrastNormalizer("FeatureCol")
+          { 
+              SubMean= false
+          });
+        </code>
+      </example>
+            <param name="input">The column to apply to.</param>
+            <param name="subMean">Subtract mean from each value before normalizing.</param>
+            <param name="useStdDev">Normalize by standard deviation rather than L2 norm.</param>
+            <param name="scale">Scale features by this value.</param>
+        </member>
+        <member name="T:Microsoft.ML.Transforms.Whitening">
+            <summary>
+        Implements PCA (Principal Component Analysis) and ZCA (Zero phase Component Analysis) whitening.
+        The whitening process consists of 2 steps:
+            1. Decorrelation of the input data. Input data is assumed to have zero mean.
+            2. Rescale decorrelated features to have unit variance.
+        That is, PCA whitening is essentially just a PCA + rescale.
+        ZCA whitening tries to make resulting data to look more like input data by rotating it back to the
+        original input space.
+        More information: <a href="http://ufldl.stanford.edu/wiki/index.php/Whitening">http://ufldl.stanford.edu/wiki/index.php/Whitening</a>
+      </summary>
+        </member>
+        <member name="M:Microsoft.ML.Transforms.Whitening.#ctor(Microsoft.ML.Runtime.IHostEnvironment,System.String,System.String,Microsoft.ML.Runtime.Data.WhiteningKind,System.Single,System.Int32,System.Boolean,System.Int32)">
+            <summary>
+        Implements PCA (Principal Component Analysis) and ZCA (Zero phase Component Analysis) whitening.
+        The whitening process consists of 2 steps:
+            1. Decorrelation of the input data. Input data is assumed to have zero mean.
+            2. Rescale decorrelated features to have unit variance.
+        That is, PCA whitening is essentially just a PCA + rescale.
+        ZCA whitening tries to make resulting data to look more like input data by rotating it back to the
+        original input space.
+        More information: <a href="http://ufldl.stanford.edu/wiki/index.php/Whitening">http://ufldl.stanford.edu/wiki/index.php/Whitening</a>
+      </summary>
+            <param name="env">The environment.</param>
+            <param name="inputColumn">The column containing text to tokenize.</param>
+            <param name="outputColumn">The column containing output tokens. Null means <paramref name="inputColumn" /> is replaced.</param>
+            <param name="kind">Whitening kind (PCA/ZCA).</param>
+            <param name="eps">Scaling regularizer.</param>
+            <param name="maxRows">Max number of rows.</param>
+            <param name="saveInverse">Whether to save inverse (recovery) matrix.</param>
+            <param name="pcaNum">PCA components to retain.</param>
+        </member>
+        <member name="M:Microsoft.ML.Transforms.Whitening.#ctor(Microsoft.ML.Runtime.IHostEnvironment,System.ValueTuple{System.String,System.String}[],Microsoft.ML.Runtime.Data.WhiteningKind,System.Single,System.Int32,System.Boolean,System.Int32)">
+            <summary>
+        Implements PCA (Principal Component Analysis) and ZCA (Zero phase Component Analysis) whitening.
+        The whitening process consists of 2 steps:
+            1. Decorrelation of the input data. Input data is assumed to have zero mean.
+            2. Rescale decorrelated features to have unit variance.
+        That is, PCA whitening is essentially just a PCA + rescale.
+        ZCA whitening tries to make resulting data to look more like input data by rotating it back to the
+        original input space.
+        More information: <a href="http://ufldl.stanford.edu/wiki/index.php/Whitening">http://ufldl.stanford.edu/wiki/index.php/Whitening</a>
+      </summary>
+            <param name="env">The environment.</param>
+            <param name="columns">Pairs of columns to run the tokenization on.</param>
+            <param name="kind">Whitening kind (PCA/ZCA).</param>
+            <param name="eps">Scaling regularizer.</param>
+            <param name="maxRows">Max number of rows.</param>
+            <param name="saveInverse">Whether to save inverse (recovery) matrix.</param>
+            <param name="pcaNum">PCA components to retain.</param>
+        </member>
+        <member name="T:Microsoft.ML.Transforms.WhiteningExtensions">
+            <summary>
+            Extensions for statically typed Whitening estimator.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Transforms.WhiteningExtensions.PcaWhitening(Microsoft.ML.Data.StaticPipe.Runtime.Vector{System.Single},System.Single,System.Int32,System.Boolean,System.Int32)">
+            <summary>
+        Implements PCA (Principal Component Analysis) and ZCA (Zero phase Component Analysis) whitening.
+        The whitening process consists of 2 steps:
+            1. Decorrelation of the input data. Input data is assumed to have zero mean.
+            2. Rescale decorrelated features to have unit variance.
+        That is, PCA whitening is essentially just a PCA + rescale.
+        ZCA whitening tries to make resulting data to look more like input data by rotating it back to the
+        original input space.
+        More information: <a href="http://ufldl.stanford.edu/wiki/index.php/Whitening">http://ufldl.stanford.edu/wiki/index.php/Whitening</a>
+      </summary>
+            <param name="input">The column to apply to.</param>
+            <param name="eps">Scaling regularizer.</param>
+            <param name="maxRows">Max number of rows.</param>
+            <param name="saveInverse">Whether to save inverse (recovery) matrix.</param>
+            <param name="pcaNum">PCA components to retain.</param>
+        </member>
+        <member name="M:Microsoft.ML.Transforms.WhiteningExtensions.ZcaWhitening(Microsoft.ML.Data.StaticPipe.Runtime.Vector{System.Single},System.Single,System.Int32,System.Boolean,System.Int32)">
+            <summary>
+        Implements PCA (Principal Component Analysis) and ZCA (Zero phase Component Analysis) whitening.
+        The whitening process consists of 2 steps:
+            1. Decorrelation of the input data. Input data is assumed to have zero mean.
+            2. Rescale decorrelated features to have unit variance.
+        That is, PCA whitening is essentially just a PCA + rescale.
+        ZCA whitening tries to make resulting data to look more like input data by rotating it back to the
+        original input space.
+        More information: <a href="http://ufldl.stanford.edu/wiki/index.php/Whitening">http://ufldl.stanford.edu/wiki/index.php/Whitening</a>
+      </summary>
+            <param name="input">The column to apply to.</param>
+            <param name="eps">Scaling regularizer.</param>
+            <param name="maxRows">Max number of rows.</param>
+            <param name="saveInverse">Whether to save inverse (recovery) matrix.</param>
+            <param name="pcaNum">PCA components to retain.</param>
+        </member>
+    </members>
+</doc>

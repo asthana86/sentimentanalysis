@@ -1,0 +1,1937 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Microsoft.ML.StandardLearners</name>
+    </assembly>
+    <members>
+        <member name="T:Microsoft.ML.Runtime.FactorizationMachine.FieldAwareFactorizationMachineTrainer">
+            <summary>
+        Train a field-aware factorization machine for binary classification using ADAGRAD (an advanced stochastic gradient method). 
+      </summary><remarks>
+        Field Aware Factorization Machines use, in addition to the input variables, factorized parameters to model the interaction between pairs of variables.
+        The algorithm is particularly useful for high dimensional datasets which can be very sparse (e.g. click-prediction for advertising systems).
+        <para>An advantage of FFM over SVMs is that the training data does not need to be stored in memory, and the coefficients can be optimized directly.
+          For a general idea of what Field-aware Factorization Machines are see: <a href="https://www.csie.ntu.edu.tw/~r01922136/slides/ffm.pdf">Field Aware Factorization Machines</a>
+        </para>
+        <para>See references below for more details. 
+        This trainer is essentially faster the one introduced in [2] because of some implemtation tricks[3].
+        </para>
+          <list type="bullet">
+            <item>
+              <description><a href="https://www.csie.ntu.edu.tw/~cjlin/papers/ffm.pdf">Field-aware Factorization Machines for CTR Prediction</a></description></item>
+            <item>
+              <description><a href="http://jmlr.org/papers/volume12/duchi11a/duchi11a.pdf">Adaptive Subgradient Methods for Online Learning and Stochastic Optimization</a></description>
+            </item>
+            <item>
+              <description><a href="https://github.com/wschin/fast-ffm/blob/master/fast-ffm.pdf">An Improved Stochastic Gradient Method for Training Large-scale Field-aware Factorization Machine.</a></description>
+            </item>
+          </list>
+      </remarks>
+        </member>
+        <member name="F:Microsoft.ML.Runtime.FactorizationMachine.FieldAwareFactorizationMachineTrainer.FeatureColumns">
+            <summary>
+            The feature column that the trainer expects.
+            </summary>
+        </member>
+        <member name="F:Microsoft.ML.Runtime.FactorizationMachine.FieldAwareFactorizationMachineTrainer.LabelColumn">
+            <summary>
+            The label column that the trainer expects. Can be <c>null</c>, which indicates that label
+            is not used for training.
+            </summary>
+        </member>
+        <member name="F:Microsoft.ML.Runtime.FactorizationMachine.FieldAwareFactorizationMachineTrainer.WeightColumn">
+            <summary>
+            The weight column that the trainer expects. Can be <c>null</c>, which indicates that weight is
+            not used for training.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.FactorizationMachine.FieldAwareFactorizationMachineTrainer.Info">
+            <summary>
+            The <see cref="T:Microsoft.ML.Runtime.TrainerInfo"/> containing at least the training data for this trainer.
+            </summary>
+        </member>
+        <member name="F:Microsoft.ML.Runtime.FactorizationMachine.FieldAwareFactorizationMachineTrainer.Context">
+            <summary>
+            Additional data for training, through <see cref="T:Microsoft.ML.Core.Prediction.TrainerEstimatorContext"/>
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.FactorizationMachine.FieldAwareFactorizationMachineTrainer.#ctor(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.FactorizationMachine.FieldAwareFactorizationMachineTrainer.Arguments)">
+            <summary>
+            Legacy constructor initializing a new instance of <see cref="T:Microsoft.ML.Runtime.FactorizationMachine.FieldAwareFactorizationMachineTrainer"/> through the legacy
+            <see cref="T:Microsoft.ML.Runtime.FactorizationMachine.FieldAwareFactorizationMachineTrainer.Arguments"/> class.
+            </summary>
+            <param name="env">The private instance of <see cref="T:Microsoft.ML.Runtime.IHostEnvironment"/>.</param>
+            <param name="args">An instance of the legacy <see cref="T:Microsoft.ML.Runtime.FactorizationMachine.FieldAwareFactorizationMachineTrainer.Arguments"/> to apply advanced parameters to the algorithm.</param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.FactorizationMachine.FieldAwareFactorizationMachineTrainer.#ctor(Microsoft.ML.Runtime.IHostEnvironment,System.String,System.String[],System.String,Microsoft.ML.Core.Prediction.TrainerEstimatorContext,System.Action{Microsoft.ML.Runtime.FactorizationMachine.FieldAwareFactorizationMachineTrainer.Arguments})">
+            <summary>
+            Initializing a new instance of <see cref="T:Microsoft.ML.Runtime.FactorizationMachine.FieldAwareFactorizationMachineTrainer"/>.
+            </summary>
+            <param name="env">The private instance of <see cref="T:Microsoft.ML.Runtime.IHostEnvironment"/>.</param>
+            <param name="labelColumn">The name of the label column.</param>
+            <param name="featureColumns">The name of  column hosting the features.</param>
+            <param name="advancedSettings">A delegate to apply all the advanced arguments to the algorithm.</param>
+            <param name="weightColumn">The name of the weight column.</param>
+            <param name="context">The <see cref="T:Microsoft.ML.Core.Prediction.TrainerEstimatorContext"/> for additional input data to training.</param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.FactorizationMachine.FieldAwareFactorizationMachineTrainer.Initialize(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.FactorizationMachine.FieldAwareFactorizationMachineTrainer.Arguments)">
+            <summary>
+            Initializes the instance. Shared between the two constructors.
+            REVIEW: Once the legacy constructor goes away, this can move to the only constructor and most of the fields can be back to readonly.
+            </summary>
+            <param name="env"></param>
+            <param name="args"></param>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.FactorizationMachine.FieldAwareFactorizationMachinePredictionTransformer.FeatureColumns">
+            <summary>
+            The name of the feature column used by the prediction transformer.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.FactorizationMachine.FieldAwareFactorizationMachinePredictionTransformer.FeatureColumnTypes">
+            <summary>
+            The type of the feature columns.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.FactorizationMachine.FieldAwareFactorizationMachinePredictionTransformer.GetOutputSchema(Microsoft.ML.Runtime.Data.ISchema)">
+            <summary>
+            Gets the <see cref="T:Microsoft.ML.Runtime.Data.ISchema"/> result after applying <see cref="M:Microsoft.ML.Runtime.FactorizationMachine.FieldAwareFactorizationMachinePredictionTransformer.Transform(Microsoft.ML.Runtime.Data.IDataView)"/>.
+            </summary>
+            <param name="inputSchema">The <see cref="T:Microsoft.ML.Runtime.Data.ISchema"/> of the input data.</param>
+            <returns>The post transformation <see cref="T:Microsoft.ML.Runtime.Data.ISchema"/>.</returns>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.FactorizationMachine.FieldAwareFactorizationMachinePredictionTransformer.Transform(Microsoft.ML.Runtime.Data.IDataView)">
+            <summary>
+            Applies the transformer to the <paramref name="input"/>, scoring it through the <see cref="T:Microsoft.ML.Runtime.Data.BinaryClassifierScorer"/>.
+            </summary>
+            <param name="input">The data to be scored with the <see cref="T:Microsoft.ML.Runtime.FactorizationMachine.FieldAwareFactorizationMachinePredictor"/>.</param>
+            <returns>The scored <see cref="T:Microsoft.ML.Runtime.Data.IDataView"/>.</returns>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.FactorizationMachine.FieldAwareFactorizationMachinePredictionTransformer.Save(Microsoft.ML.Runtime.Model.ModelSaveContext)">
+            <summary>
+            Saves the transformer to file.
+            </summary>
+            <param name="ctx">The <see cref="T:Microsoft.ML.Runtime.Model.ModelSaveContext"/> that facilitates saving to the <see cref="T:Microsoft.ML.Runtime.Model.Repository"/>.</param>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Numeric.DifferentiableFunction">
+            <summary>
+            A delegate for functions with gradients.
+            </summary>
+            <param name="input">The point at which to evaluate the function</param>
+            <param name="gradient">The gradient vector, which must be filled in (its initial contents are undefined)</param>
+            <param name="progress">The progress channel provider that can be used to report calculation progress. Can be null.</param>
+            <returns>The value of the function</returns>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Numeric.IndexedDifferentiableFunction">
+             <summary>
+             A delegate for indexed sets of functions with gradients.
+            
+             REVIEW: I didn't add an <see cref="T:Microsoft.ML.Runtime.IProgressChannelProvider"/> here, since it looks like this code is not actually
+             accessed from anywhere. Maybe it should go away?
+             </summary>
+             <param name="index">The index of the function</param>
+             <param name="input">The point at which to evaluate the function</param>
+             <param name="gradient">The gradient vector, which must be filled in (its initial contents are undefined)</param>
+             <returns>The value of the function</returns>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Numeric.DifferentiableFunctionAggregator">
+            <summary>
+            Class to aggregate an indexed differentiable function into a single function, in parallel
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.DifferentiableFunctionAggregator.#ctor(Microsoft.ML.Runtime.Numeric.IndexedDifferentiableFunction,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Creates a DifferentiableFunctionAggregator
+            </summary>
+            <param name="func">Indexed function to use</param>
+            <param name="dim">Dimensionality of the function</param>
+            <param name="maxIndex">Max index of the function</param>
+            <param name="threads">Number of threads to use</param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.DifferentiableFunctionAggregator.Eval(Microsoft.ML.Runtime.Data.VBuffer{System.Single}@,Microsoft.ML.Runtime.Data.VBuffer{System.Single}@)">
+            <summary>
+            Evaluate and sum the function over all indices, in parallel
+            </summary>
+            <param name="input">The point at which to evaluate the function</param>
+            <param name="gradient">The gradient vector, which must be filled in (its initial contents are undefined)</param>
+            <returns>Function value</returns>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Numeric.GradientTester">
+            <summary>
+            A class for testing the gradient of DifferentiableFunctions, useful for debugging
+            </summary>
+            <remarks>
+            Works by comparing the reported gradient to the numerically computed gradient.
+            If the gradient is correct, the return value should be small (order of 1e-6).
+            May have false negatives if extreme values cause the numeric gradient to be off,
+            e.g. if the norm of x is very large, or if the gradient is changing rapidly at x.
+            </remarks>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.GradientTester.Test(Microsoft.ML.Runtime.Numeric.DifferentiableFunction,Microsoft.ML.Runtime.Data.VBuffer{System.Single}@)">
+            <summary>
+            Tests the gradient reported by f.
+            </summary>
+            <param name="f">function to test</param>
+            <param name="x">point at which to test</param>
+            <returns>maximum normalized difference between analytic and numeric directional derivative over multiple tests</returns>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.GradientTester.Test(Microsoft.ML.Runtime.Numeric.DifferentiableFunction,Microsoft.ML.Runtime.Data.VBuffer{System.Single}@,System.Boolean)">
+            <summary>
+            Tests the gradient reported by f.
+            </summary>
+            <param name="f">function to test</param>
+            <param name="x">point at which to test</param>
+            <param name="quiet">If false, outputs detailed info.</param>
+            <returns>maximum normalized difference between analytic and numeric directional derivative over multiple tests</returns>
+        </member>
+        <member name="F:Microsoft.ML.Runtime.Numeric.GradientTester.Header">
+            <summary>
+            The head of the test output
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.GradientTester.TestAllCoords(Microsoft.ML.Runtime.Numeric.DifferentiableFunction,Microsoft.ML.Runtime.Data.VBuffer{System.Single}@)">
+            <summary>
+            Tests the gradient using finite differences on each axis (appropriate for small functions)
+            </summary>
+            <param name="f"></param>
+            <param name="x"></param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.GradientTester.TestCoords(Microsoft.ML.Runtime.Numeric.DifferentiableFunction,Microsoft.ML.Runtime.Data.VBuffer{System.Single}@,System.Collections.Generic.IList{System.Int32})">
+            <summary>
+            Tests the gradient using finite differences on each axis in the list
+            </summary>
+            <param name="f">Function to test</param>
+            <param name="x">Point at which to test</param>
+            <param name="coords">List of coordinates to test</param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.GradientTester.Test(Microsoft.ML.Runtime.Numeric.DifferentiableFunction,Microsoft.ML.Runtime.Data.VBuffer{System.Single}@,Microsoft.ML.Runtime.Data.VBuffer{System.Single}@,System.Boolean,Microsoft.ML.Runtime.Data.VBuffer{System.Single}@,Microsoft.ML.Runtime.Data.VBuffer{System.Single}@)">
+            <summary>
+            Tests the gradient reported by <paramref name="f"/>.
+            </summary>
+            <param name="f">Function to test</param>
+            <param name="x">Point at which to test</param>
+            <param name="dir">Direction to test derivative</param>
+            <param name="quiet">Whether to disable output</param>
+            <param name="newGrad">This is a reusable working buffer for intermediate calculations</param>
+            <param name="newX">This is a reusable working buffer for intermediate calculations</param>
+            <returns>Normalized difference between analytic and numeric directional derivative</returns>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Numeric.L1Optimizer">
+            <summary>
+            Orthant-Wise Limited-memory Quasi-Newton algorithm
+            for optimization of smooth convex objectives plus L1-regularization
+            If you use this code for published research, please cite
+              Galen Andrew and Jianfeng Gao, "Scalable Training of L1-Regularized Log-Linear Models",	ICML 2007
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.L1Optimizer.#ctor(Microsoft.ML.Runtime.IHostEnvironment,System.Int32,System.Single,System.Int32,System.Boolean,Microsoft.ML.Runtime.Numeric.ITerminationCriterion,System.Boolean)">
+            <summary>
+            Create an L1Optimizer with the supplied value of M and termination criterion
+            </summary>
+            <param name="env">The environment</param>
+            <param name="biasCount">Number of biases</param>
+            <param name="l1weight">Weight of L1 regularizer</param>
+            <param name="m">The number of previous iterations to store</param>
+            <param name="keepDense">Whether the optimizer will keep its internal state dense</param>
+            <param name="term">Termination criterion</param>
+            <param name="enforceNonNegativity">The flag enforcing the non-negativity constraint</param>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Numeric.L1Optimizer.L1OptimizerState">
+            <summary>
+            Contains information about the state of the optimizer
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.L1Optimizer.L1OptimizerState.EvalCore(Microsoft.ML.Runtime.Data.VBuffer{System.Single}@,Microsoft.ML.Runtime.Data.VBuffer{System.Single}@,Microsoft.ML.Runtime.IProgressChannelProvider)">
+            <summary>
+            This is the original differentiable function with the injected L1 term.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.L1Optimizer.L1OptimizerState.LineSearch(Microsoft.ML.Runtime.IChannel,System.Boolean)">
+            <summary>
+            Backtracking line search with Armijo-like condition, from Andrew &amp; Gao
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Numeric.ILineSearch">
+            <summary>
+            Line search that does not use derivatives
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.ILineSearch.Minimize(System.Func{System.Single,System.Single})">
+            <summary>
+            Finds a local minimum of the function
+            </summary>
+            <param name="func">Function to minimize</param>
+            <returns>Minimizing value</returns>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Numeric.DiffFunc1D">
+            <summary>
+            Delegate for differentiable 1-D functions
+            </summary>
+            <param name="x">Point to evaluate</param>
+            <param name="deriv">Derivative at that point</param>
+            <returns></returns>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Numeric.IDiffLineSearch">
+            <summary>
+            Line search that uses derivatives
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.IDiffLineSearch.Minimize(Microsoft.ML.Runtime.Numeric.DiffFunc1D,System.Single,System.Single)">
+            <summary>
+            Finds a local minimum of the function
+            </summary>
+            <param name="func">Function to minimize</param>
+            <param name="initValue">Value of function at 0</param>
+            <param name="initDeriv">Derivative of function at 0</param>
+            <returns>Minimizing value</returns>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Numeric.CubicInterpLineSearch">
+            <summary>
+            Cubic interpolation line search
+            </summary>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.Numeric.CubicInterpLineSearch.MaxNumSteps">
+            <summary>
+            Gets or sets maximum number of steps.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.Numeric.CubicInterpLineSearch.MinWindow">
+            <summary>
+            Gets or sets the minimum relative size of bounds around solution.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.Numeric.CubicInterpLineSearch.MaxStep">
+            <summary>
+            Gets or sets maximum step size
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.CubicInterpLineSearch.#ctor(System.Int32)">
+            <summary>
+            Makes a CubicInterpLineSearch
+            </summary>
+            <param name="maxNumSteps">Maximum number of steps before terminating</param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.CubicInterpLineSearch.#ctor(System.Single)">
+            <summary>
+            Makes a CubicInterpLineSearch
+            </summary>
+            <param name="minWindow">Minimum relative size of bounds around solution</param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.CubicInterpLineSearch.CubicInterp(Microsoft.ML.Runtime.Numeric.CubicInterpLineSearch.StepValueDeriv,Microsoft.ML.Runtime.Numeric.CubicInterpLineSearch.StepValueDeriv)">
+            <summary>
+            Cubic interpolation routine from Nocedal and Wright
+            </summary>
+            <param name="a">first point, with value and derivative</param>
+            <param name="b">second point, with value and derivative</param>
+            <returns>local minimum of interpolating cubic polynomial</returns>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.CubicInterpLineSearch.Minimize(Microsoft.ML.Runtime.Numeric.DiffFunc1D,System.Single,System.Single)">
+            <summary>
+            Finds a local minimum of the function
+            </summary>
+            <param name="func">Function to minimize</param>
+            <param name="initValue">Value of function at 0</param>
+            <param name="initDeriv">Derivative of function at 0</param>
+            <returns>Minimizing value</returns>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Numeric.GoldenSectionSearch">
+            <summary>
+            Finds local minimum with golden section search.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.Numeric.GoldenSectionSearch.MaxNumSteps">
+            <summary>
+            Gets or sets maximum number of steps before terminating.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.Numeric.GoldenSectionSearch.MinWindow">
+            <summary>
+            Gets or sets minimum relative size of bounds around solution.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.Numeric.GoldenSectionSearch.MaxStep">
+            <summary>
+            Gets or sets maximum step size.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.GoldenSectionSearch.#ctor(System.Int32)">
+            <summary>
+            Makes a new GoldenSectionSearch
+            </summary>
+            <param name="maxNumSteps">Maximum number of steps before terminating (not including bracketing)</param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.GoldenSectionSearch.#ctor(System.Single)">
+            <summary>
+            Makes a new GoldenSectionSearch
+            </summary>
+            <param name="minWindow">Minimum relative size of bounds around solution</param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.GoldenSectionSearch.Minimize(Microsoft.ML.Runtime.Numeric.DiffFunc1D,System.Single,System.Single)">
+            <summary>
+            Finds a local minimum of the function
+            </summary>
+            <param name="f">Function to minimize</param>
+            <param name="initVal">Value of function at 0</param>
+            <param name="initDeriv">Derivative of function at 0</param>
+            <returns>Minimizing value</returns>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.GoldenSectionSearch.Minimize(Microsoft.ML.Runtime.Numeric.DiffFunc1D)">
+            <summary>
+            Finds a local minimum of the function
+            </summary>
+            <param name="func">Function to minimize</param>
+            <returns>Minimizing value</returns>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.GoldenSectionSearch.Minimize(System.Func{System.Single,System.Single})">
+            <summary>
+            Finds a local minimum of the function
+            </summary>
+            <param name="func">Function to minimize</param>
+            <returns>Minimizing value</returns>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Numeric.BacktrackingLineSearch">
+            <summary>
+            Backtracking line search with Armijo condition
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.BacktrackingLineSearch.#ctor(System.Single)">
+            <summary>
+            Makes a backtracking line search
+            </summary>
+            <param name="c1">Parameter for Armijo condition</param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.BacktrackingLineSearch.Minimize(Microsoft.ML.Runtime.Numeric.DiffFunc1D,System.Single,System.Single)">
+            <summary>
+            Finds a local minimum of the function
+            </summary>
+            <param name="f">Function to minimize</param>
+            <param name="initVal">Value of function at 0</param>
+            <param name="initDeriv">Derivative of function at 0</param>
+            <returns>Minimizing value</returns>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Numeric.ITerminationCriterion">
+            <summary>
+            An object which is used to decide whether to stop optimization.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.Numeric.ITerminationCriterion.FriendlyName">
+            <summary>
+            Name appropriate for display to the user.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.ITerminationCriterion.Terminate(Microsoft.ML.Runtime.Numeric.Optimizer.OptimizerState,System.String@)">
+            <summary>
+            Determines whether to stop optimization
+            </summary>
+            <param name="state">the state of the optimizer</param>
+            <param name="message">a message to be printed (or null for no message)</param>
+            <returns>true iff criterion is met, i.e. optimization should halt</returns>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.ITerminationCriterion.Reset">
+            <summary>
+            Prepares the ITerminationCriterion for a new round of optimization
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Numeric.GradientCheckingMonitor">
+            <summary>
+            A wrapper for a termination criterion that checks the gradient at a specified interval
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.GradientCheckingMonitor.#ctor(Microsoft.ML.Runtime.Numeric.ITerminationCriterion,System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.ML.Runtime.Numeric.GradientCheckingMonitor"/> class.
+            </summary>
+            <param name="termCrit">The termination criterion</param>
+            <param name="gradientCheckInterval">The gradient check interval.</param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.GradientCheckingMonitor.Terminate(Microsoft.ML.Runtime.Numeric.Optimizer.OptimizerState,System.String@)">
+            <summary>
+            Determines whether to stop optimization
+            </summary>
+            <param name="state">the state of the optimizer</param>
+            <param name="message">a message to be printed (or null for no message)</param>
+            <returns>
+            true iff criterion is met, i.e. optimization should halt
+            </returns>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.GradientCheckingMonitor.Reset">
+            <summary>
+            Prepares the ITerminationCriterion for a new round of optimization
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Numeric.StaticTerminationCriterion">
+            <summary>
+            An abstract partial implementation of ITerminationCriterion for those which do not require resetting
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.StaticTerminationCriterion.Terminate(Microsoft.ML.Runtime.Numeric.Optimizer.OptimizerState,System.String@)">
+            <summary>
+            Determines whether to stop optimization
+            </summary>
+            <param name="state">the state of the optimizer</param>
+            <param name="message">a message to be printed (or null for no message)</param>
+            <returns>
+            true iff criterion is met, i.e. optimization should halt
+            </returns>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.StaticTerminationCriterion.Reset">
+            <summary>
+            Prepares the ITerminationCriterion for a new round of optimization
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Numeric.MeanImprovementCriterion">
+            <summary>
+            Terminates when the geometrically-weighted average improvement falls below the tolerance
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.MeanImprovementCriterion.#ctor(System.Single,System.Single,System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.ML.Runtime.Numeric.MeanImprovementCriterion"/> class.
+            </summary>
+            <param name="tol">The tolerance parameter</param>
+            <param name="lambda">The geometric weighting factor. Higher means more heavily weighted toward older values.</param>
+            <param name="maxIterations">Maximum amount of iteration</param>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.Numeric.MeanImprovementCriterion.Tolerance">
+            <summary>
+            When criterion drops below this value, optimization is terminated
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.MeanImprovementCriterion.Terminate(Microsoft.ML.Runtime.Numeric.Optimizer.OptimizerState,System.String@)">
+            <summary>
+            Determines whether to stop optimization
+            </summary>
+            <param name="state">the state of the optimizer</param>
+            <param name="message">a message to be printed (or null for no message)</param>
+            <returns>
+            true iff criterion is met, i.e. optimization should halt
+            </returns>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.MeanImprovementCriterion.Reset">
+            <summary>
+            Prepares the ITerminationCriterion for a new round of optimization
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Numeric.MeanRelativeImprovementCriterion">
+            <summary>
+            Stops optimization when the average objective improvement over the last
+            n iterations, normalized by the function value, is small enough.
+            </summary>
+            <remarks>
+            Inappropriate for functions whose optimal value is non-positive, because of normalization
+            </remarks>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.Numeric.MeanRelativeImprovementCriterion.Tolerance">
+            <summary>
+            When criterion drops below this value, optimization is terminated
+            </summary>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.Numeric.MeanRelativeImprovementCriterion.Iters">
+            <summary>
+            Number of previous iterations to store
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.MeanRelativeImprovementCriterion.#ctor(System.Single,System.Int32,System.Int32)">
+            <summary>
+            Create a MeanRelativeImprovementCriterion
+            </summary>
+            <param name="tol">tolerance level</param>
+            <param name="n">number of past iterations to average over</param>
+            <param name="maxIterations">Maximum amount of iteration</param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.MeanRelativeImprovementCriterion.Terminate(Microsoft.ML.Runtime.Numeric.Optimizer.OptimizerState,System.String@)">
+            <summary>
+            Returns true if the average objective improvement over the last
+            n iterations, normalized by the function value, is less than the tolerance
+            </summary>
+            <param name="state">current state of the optimizer</param>
+            <param name="message">the current value of the criterion</param>
+            <returns>true if criterion is less than tolerance</returns>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.MeanRelativeImprovementCriterion.ToString">
+            <summary>
+            String summary of criterion
+            </summary>
+            <returns>summary of criterion</returns>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.MeanRelativeImprovementCriterion.Reset">
+            <summary>
+            Prepares the ITerminationCriterion for a new round of optimization
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Numeric.UpperBoundOnDistanceWithL2">
+            <summary>
+            Uses the gradient to determine an upper bound on (relative) distance from the optimum.
+            </summary>
+            <remarks>
+            Works if the objective uses L2 prior (or in general if the hessian H is such
+            that H > (1 / sigmaSq) * I at all points)
+            Inappropriate for functions whose optimal value is non-positive, because of normalization
+            </remarks>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.Numeric.UpperBoundOnDistanceWithL2.Tolerance">
+            <summary>
+            When criterion drops below this value, optimization is terminated
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.UpperBoundOnDistanceWithL2.#ctor(System.Single,System.Single)">
+            <summary>
+            Create termination criterion with supplied value of sigmaSq and tolerance
+            </summary>
+            <param name="sigmaSq">value of sigmaSq in L2 regularizer</param>
+            <param name="tol">tolerance level</param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.UpperBoundOnDistanceWithL2.Terminate(Microsoft.ML.Runtime.Numeric.Optimizer.OptimizerState,System.String@)">
+            <summary>
+            Returns true if the proved bound on the distance from the optimum,
+            normalized by the function value, is less than the tolerance
+            </summary>
+            <param name="state">current state of the optimizer</param>
+            <param name="message">value of criterion</param>
+            <returns>true if criterion is less than tolerance</returns>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.UpperBoundOnDistanceWithL2.ToString">
+            <summary>
+            String summary of criterion
+            </summary>
+            <returns>summary of criterion</returns>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Numeric.RelativeNormGradient">
+            <summary>
+            Criterion based on the norm of the gradient being small enough
+            </summary>
+            <remarks>
+            Inappropriate for functions whose optimal value is non-positive, because of normalization
+            </remarks>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.Numeric.RelativeNormGradient.Tolerance">
+            <summary>
+            When criterion drops below this value, optimization is terminated
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.RelativeNormGradient.#ctor(System.Single)">
+            <summary>
+            Create a RelativeNormGradient with the supplied tolerance
+            </summary>
+            <param name="tol">tolerance level</param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.RelativeNormGradient.Terminate(Microsoft.ML.Runtime.Numeric.Optimizer.OptimizerState,System.String@)">
+            <summary>
+            Returns true if the norm of the gradient, divided by the value, is less than the tolerance.
+            </summary>
+            <param name="state">current state of the optimzer</param>
+            <param name="message">the current value of the criterion</param>
+            <returns>true iff criterion is less than the tolerance</returns>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.RelativeNormGradient.ToString">
+            <summary>
+            String summary of criterion
+            </summary>
+            <returns>summary of criterion</returns>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Numeric.Optimizer">
+            <summary>
+            Limited-memory BFGS quasi-Newton optimization routine
+            </summary>
+        </member>
+        <member name="F:Microsoft.ML.Runtime.Numeric.Optimizer.EnforceNonNegativity">
+            Based on Nocedal and Wright, "Numerical Optimization, Second Edition"
+        </member>
+        <member name="F:Microsoft.ML.Runtime.Numeric.Optimizer.Env">
+            <summary>
+            The host environment to use for reporting progress and exceptions.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.Numeric.Optimizer.M">
+            <summary>
+            Number of previous iterations to remember for estimate of Hessian.
+            </summary>
+            <remarks>
+            Higher M means better approximation to Newton's method, but uses more memory,
+            and requires more time to compute direction. The optimal setting of M is problem
+            specific, depending on such factors as how expensive is function evaluation
+            compared to choosing the direction, how easily approximable is the function's
+            Hessian, etc.
+            M = 15..20 is usually reasonable but if necessary even M=2 is better than
+            gradient descent
+            </remarks>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.Numeric.Optimizer.TotalMemoryLimit">
+            <summary>
+            Gets or sets a bound on the total number of bytes allowed.
+            If the whole application is using more than this, no more vectors will be allocated.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.Optimizer.#ctor(Microsoft.ML.Runtime.IHostEnvironment,System.Int32,System.Boolean,Microsoft.ML.Runtime.Numeric.ITerminationCriterion,System.Boolean)">
+            <summary>
+            Create an optimizer with the supplied value of M and termination criterion
+            </summary>
+            <param name="env">The host environment</param>
+            <param name="m">The number of previous iterations to store</param>
+            <param name="keepDense">Whether the optimizer will keep its internal state dense</param>
+            <param name="term">Termination criterion, defaults to MeanRelativeImprovement if null</param>
+            <param name="enforceNonNegativity">The flag enforcing the non-negativity constraint</param>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Numeric.Optimizer.OptimizerException">
+            <summary>
+            A class for exceptions thrown by the optimizer.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.Numeric.Optimizer.OptimizerException.State">
+            <summary>
+            The state of the optimizer when premature convergence happened.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Numeric.Optimizer.OptimizerState">
+            <summary>
+            Contains information about the state of the optimizer
+            </summary>
+        </member>
+        <member name="F:Microsoft.ML.Runtime.Numeric.Optimizer.OptimizerState.Dim">
+            <summary>
+            The dimensionality of the function
+            </summary>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.Numeric.Optimizer.OptimizerState.Function">
+            <summary>
+            The function being optimized
+            </summary>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.Numeric.Optimizer.OptimizerState.X">
+            <summary>
+            The current point being explored
+            </summary>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.Numeric.Optimizer.OptimizerState.Grad">
+            <summary>
+            The gradient at the current point
+            </summary>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.Numeric.Optimizer.OptimizerState.LastDir">
+            <summary>
+            The direction of search that led to the current point
+            </summary>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.Numeric.Optimizer.OptimizerState.Value">
+            <summary>
+            The current function value
+            </summary>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.Numeric.Optimizer.OptimizerState.LastValue">
+            <summary>
+            The function value at the last point
+            </summary>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.Numeric.Optimizer.OptimizerState.Iter">
+            <summary>
+            The number of iterations so far
+            </summary>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.Numeric.Optimizer.OptimizerState.GradientCalculations">
+            <summary>
+            The number of completed gradient calculations in the current iteration.
+            </summary>
+            <remarks>This is updated in derived classes, since they may call Eval at different times.</remarks>
+        </member>
+        <member name="F:Microsoft.ML.Runtime.Numeric.Optimizer.OptimizerState._keepDense">
+            <summary>
+            Whether the optimizer state will keep its internal vectors dense or not.
+            This being true may lead to reduced load on the garbage collector, at the
+            cost of possibly higher overall memory utilization.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.Optimizer.OptimizerState.CreateWorkingVector">
+            <summary>
+            Convenience function to construct a working vector of length <c>Dim</c>.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.Optimizer.OptimizerState.LineSearch(Microsoft.ML.Runtime.IChannel,System.Boolean)">
+            <summary>
+            An implementation of the line search for the Wolfe conditions, from Nocedal &amp; Wright
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.Optimizer.OptimizerState.CubicInterp(Microsoft.ML.Runtime.Numeric.Optimizer.OptimizerState.PointValueDeriv,Microsoft.ML.Runtime.Numeric.Optimizer.OptimizerState.PointValueDeriv)">
+            <summary>
+            Cubic interpolation routine from Nocedal and Wright
+            </summary>
+            <param name="p0">first point, with value and derivative</param>
+            <param name="p1">second point, with value and derivative</param>
+            <returns>local minimum of interpolating cubic polynomial</returns>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.Optimizer.Minimize(Microsoft.ML.Runtime.Numeric.DifferentiableFunction,Microsoft.ML.Runtime.Data.VBuffer{System.Single}@,System.Single,Microsoft.ML.Runtime.Data.VBuffer{System.Single}@,System.Single@)">
+            <summary>
+            Minimize a function using the MeanRelativeImprovement termination criterion with the supplied tolerance level
+            </summary>
+            <param name="function">The function to minimize</param>
+            <param name="initial">The initial point</param>
+            <param name="tolerance">Convergence tolerance (smaller means more iterations, closer to exact optimum)</param>
+            <param name="result">The point at the optimum</param>
+            <param name="optimum">The optimum function value</param>
+            <exception cref="T:Microsoft.ML.Runtime.Numeric.Optimizer.PrematureConvergenceException">Thrown if successive points are within numeric precision of each other, but termination condition is still unsatisfied.</exception>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.Optimizer.Minimize(Microsoft.ML.Runtime.Numeric.DifferentiableFunction,Microsoft.ML.Runtime.Data.VBuffer{System.Single}@,Microsoft.ML.Runtime.Data.VBuffer{System.Single}@,System.Single@)">
+            <summary>
+            Minimize a function.
+            </summary>
+            <param name="function">The function to minimize</param>
+            <param name="initial">The initial point</param>
+            <param name="result">The point at the optimum</param>
+            <param name="optimum">The optimum function value</param>
+            <exception cref="T:Microsoft.ML.Runtime.Numeric.Optimizer.PrematureConvergenceException">Thrown if successive points are within numeric precision of each other, but termination condition is still unsatisfied.</exception>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.Optimizer.Minimize(Microsoft.ML.Runtime.Numeric.DifferentiableFunction,Microsoft.ML.Runtime.Data.VBuffer{System.Single}@,Microsoft.ML.Runtime.Numeric.ITerminationCriterion,Microsoft.ML.Runtime.Data.VBuffer{System.Single}@,System.Single@)">
+            <summary>
+            Minimize a function using the supplied termination criterion
+            </summary>
+            <param name="function">The function to minimize</param>
+            <param name="initial">The initial point</param>
+            <param name="term">termination criterion to use</param>
+            <param name="result">The point at the optimum</param>
+            <param name="optimum">The optimum function value</param>
+            <exception cref="T:Microsoft.ML.Runtime.Numeric.Optimizer.PrematureConvergenceException">Thrown if successive points are within numeric precision of each other, but termination condition is still unsatisfied.</exception>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Numeric.Optimizer.PrematureConvergenceException">
+            <summary>
+            This exception is thrown if successive differences between points
+            reach the limits of numerical stability, but the termination condition
+            still hasn't been satisfied
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.Optimizer.PrematureConvergenceException.#ctor(Microsoft.ML.Runtime.Numeric.Optimizer.OptimizerState,System.String)">
+            <summary>
+            Makes a PrematureConvergenceException with the supplied message
+            </summary>
+            <param name="state">The OptimizerState when the exception was thrown</param>
+            <param name="message">message for exception</param>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.Numeric.Optimizer.Quiet">
+            <summary>
+            If true, suppresses all output.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Numeric.DTerminate">
+            <summary>
+            Delegate for functions that determine whether to terminate search. Called after each update.
+            </summary>
+            <param name="x">Current iterate</param>
+            <returns>True if search should terminate</returns>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Numeric.SgdOptimizer">
+            <summary>
+            Stochastic gradient descent with variations (minibatch, momentum, averaging).
+            </summary>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.Numeric.SgdOptimizer.BatchSize">
+            <summary>
+            Size of minibatches
+            </summary>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.Numeric.SgdOptimizer.Momentum">
+            <summary>
+            Momentum parameter
+            </summary>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.Numeric.SgdOptimizer.T0">
+            <summary>
+            Base of step size schedule s_t = 1 / (t0 + f(t))
+            </summary>
+        </member>
+        <member name="F:Microsoft.ML.Runtime.Numeric.SgdOptimizer._terminate">
+            <summary>
+            Termination criterion
+            </summary>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.Numeric.SgdOptimizer.Averaging">
+            <summary>
+            If true, iterates are averaged
+            </summary>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.Numeric.SgdOptimizer.RateSchedule">
+            <summary>
+            Gets/Sets rate schedule type
+            </summary>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.Numeric.SgdOptimizer.MaxSteps">
+            <summary>
+            Gets/Sets maximum number of steps. Set to 0 for no max
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Numeric.SgdOptimizer.RateScheduleType">
+            <summary>
+            Annealing schedule for learning rate
+            </summary>
+        </member>
+        <member name="F:Microsoft.ML.Runtime.Numeric.SgdOptimizer.RateScheduleType.Constant">
+            <summary>
+            r_t = 1 / t0
+            </summary>
+        </member>
+        <member name="F:Microsoft.ML.Runtime.Numeric.SgdOptimizer.RateScheduleType.Sqrt">
+            <summary>
+            r_t = 1 / (t0 + sqrt(t))
+            </summary>
+        </member>
+        <member name="F:Microsoft.ML.Runtime.Numeric.SgdOptimizer.RateScheduleType.Linear">
+            <summary>
+            r_t = 1 / (t0 + t)
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.SgdOptimizer.#ctor(Microsoft.ML.Runtime.Numeric.DTerminate,Microsoft.ML.Runtime.Numeric.SgdOptimizer.RateScheduleType,System.Boolean,System.Single,System.Int32,System.Single,System.Int32)">
+            <summary>
+            Creates SGDOptimizer and sets optimization parameters
+            </summary>
+            <param name="terminate">Termination criterion</param>
+            <param name="rateSchedule">Annealing schedule type for learning rate</param>
+            <param name="averaging">If true, all iterates are averaged</param>
+            <param name="t0">Base for learning rate schedule</param>
+            <param name="batchSize">Average this number of stochastic gradients for each update</param>
+            <param name="momentum">Momentum parameter</param>
+            <param name="maxSteps">Maximum number of updates (0 for no max)</param>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Numeric.SgdOptimizer.DStochasticGradient">
+            <summary>
+            Delegate for functions to query stochastic gradient at a point
+            </summary>
+            <param name="x">Point at which to evaluate</param>
+            <param name="grad">Vector to be filled in with gradient</param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.SgdOptimizer.Minimize(Microsoft.ML.Runtime.Numeric.SgdOptimizer.DStochasticGradient,Microsoft.ML.Runtime.Data.VBuffer{System.Single}@,Microsoft.ML.Runtime.Data.VBuffer{System.Single}@)">
+            <summary>
+            Minimize the function represented by <paramref name="f"/>.
+            </summary>
+            <param name="f">Stochastic gradients of function to minimize</param>
+            <param name="initial">Initial point</param>
+            <param name="result">Approximate minimum of <paramref name="f"/></param>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Numeric.GDOptimizer">
+            <summary>
+            Deterministic gradient descent with line search
+            </summary>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.Numeric.GDOptimizer.LineSearch">
+            <summary>
+            Line search to use.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.Numeric.GDOptimizer.MaxSteps">
+            <summary>
+            Gets/Sets maximum number of steps. Set to 0 for no max.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.Numeric.GDOptimizer.Terminate">
+            <summary>
+            Gets/sets termination criterion.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.Numeric.GDOptimizer.UseCG">
+            <summary>
+            Gets/sets whether to use nonlinear conjugate gradient.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.GDOptimizer.#ctor(Microsoft.ML.Runtime.Numeric.DTerminate,Microsoft.ML.Runtime.Numeric.IDiffLineSearch,System.Boolean,System.Int32)">
+            <summary>
+            Makes a new GDOptimizer with the given optimization parameters
+            </summary>
+            <param name="terminate">Termination criterion</param>
+            <param name="lineSearch">Line search to use</param>
+            <param name="maxSteps">Maximum number of updates</param>
+            <param name="useCG">Use Cubic interpolation line search or Backtracking line search with Armijo condition</param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.GDOptimizer.Minimize(Microsoft.ML.Runtime.Numeric.DifferentiableFunction,Microsoft.ML.Runtime.Data.VBuffer{System.Single}@,Microsoft.ML.Runtime.Data.VBuffer{System.Single}@)">
+            <summary>
+            Finds approximate minimum of the function
+            </summary>
+            <param name="function">Function to minimize</param>
+            <param name="initial">Initial point</param>
+            <param name="result">Approximate minimum</param>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Numeric.TerminateTester">
+            <summary>
+            Terminates the optimization if NA value appears in result or no progress is made.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Numeric.TerminateTester.ShouldTerminate(Microsoft.ML.Runtime.Data.VBuffer{System.Single}@,Microsoft.ML.Runtime.Data.VBuffer{System.Single}@)">
+            <summary>
+            Test whether the optimization should terminate. Returns true if x contains NA or +/-Inf or x equals xprev.
+            </summary>
+            <param name="x">The current value.</param>
+            <param name="xprev">The value from the previous iteration.</param>
+            <returns>True if the optimization routine should terminate at this iteration.</returns>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.Learners.LinearTrainerBase`1.ShuffleData">
+            <summary>
+            Whether data is to be shuffled every epoch.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.LinearTrainerBase`1.PrepareDataFromTrainingExamples(Microsoft.ML.Runtime.IChannel,Microsoft.ML.Runtime.Data.RoleMappedData,System.Int32@)">
+            <summary>
+            This method ensures that the data meets the requirements of this trainer and its
+            subclasses, injects necessary transforms, and throws if it couldn't meet them.
+            </summary>
+            <param name="ch">The channel</param>
+            <param name="examples">The training examples</param>
+            <param name="weightSetCount">Gets the length of weights and bias array. For binary classification and regression,
+            this is 1. For multi-class classification, this equals the number of classes on the label.</param>
+            <returns>A potentially modified version of <paramref name="examples"/></returns>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.SdcaTrainerBase`2.InitializeConvergenceMetrics(System.String[]@,System.Double[]@)">
+            <summary>
+            Returns the names of the metrics reported by <see cref="M:Microsoft.ML.Runtime.Learners.SdcaTrainerBase`2.CheckConvergence(Microsoft.ML.Runtime.IProgressChannel,System.Int32,Microsoft.ML.Runtime.Training.FloatLabelCursor.Factory,Microsoft.ML.Runtime.Learners.SdcaTrainerBase{`0,`1}.DualsTableBase,Microsoft.ML.Runtime.Learners.SdcaTrainerBase{`0,`1}.IdToIdxLookup,Microsoft.ML.Runtime.Data.VBuffer{System.Single}[],Microsoft.ML.Runtime.Data.VBuffer{System.Single}[],System.Single[],System.Single[],System.Single[],System.Single[],System.Int64,System.Double[],System.Double@,System.Int32@)"/>, as well as the initial values.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.SdcaTrainerBase`2.TrainWithoutLock(Microsoft.ML.Runtime.IProgressChannelProvider,Microsoft.ML.Runtime.Training.FloatLabelCursor.Factory,Microsoft.ML.Runtime.IRandom,Microsoft.ML.Runtime.Learners.SdcaTrainerBase{`0,`1}.IdToIdxLookup,System.Int32,Microsoft.ML.Runtime.Learners.SdcaTrainerBase{`0,`1}.DualsTableBase,System.Single[],System.Single[],System.Single,Microsoft.ML.Runtime.Data.VBuffer{System.Single}[],System.Single[],Microsoft.ML.Runtime.Data.VBuffer{System.Single}[],System.Single[],System.Single[])">
+            <summary>
+            Train the SDCA optimizer with one iteration over the entire training examples.
+            </summary>
+            <param name="progress">The progress reporting channel.</param>
+            <param name="cursorFactory">The cursor factory to create cursors over the training examples.</param>
+            <param name="rand">
+            The random number generator to generate random numbers for randomized shuffling of the training examples.
+            It may be null. When it is null, the training examples are not shuffled and are cursored in its original order.
+            </param>
+            <param name="idToIdx">
+            The id to index mapping. May be null. If it is null, the index is given by the
+            corresponding lower bits of the id.
+            </param>
+            <param name="numThreads">The number of threads used in parallel training. It is used in computing the dual update.</param>
+            <param name="duals">
+            The dual variables. For binary classification and regression, there is one dual variable per row.
+            For multiclass classification, there is one dual variable per class per row.
+            </param>
+            <param name="biasReg">The array containing regularized bias terms. For binary classification or regression,
+            it contains only a single value. For multiclass classification its size equals the number of classes.</param>
+            <param name="invariants">
+            The dual updates invariants. It may be null. If not null, it holds an array of pre-computed numerical quantities
+            that depend on the training example label and features, not the value of dual variables.
+            </param>
+            <param name="lambdaNInv">The precomputed numerical quantity 1 / (l2Const * (count of training examples)).</param>
+            <param name="weights">
+            The weights array. For binary classification or regression, it consists of only one VBuffer.
+            For multiclass classification, its size equals the number of classes.
+            </param>
+            <param name="biasUnreg">
+            The array containing unregularized bias terms. For binary classification or regression,
+            it contains only a single value. For multiclass classification its size equals the number of classes.
+            </param>
+            <param name="l1IntermediateWeights">
+            The array holding the intermediate weights prior to making L1 shrinkage adjustment. It is null iff l1Threshold is zero.
+            Otherwise, for binary classification or regression, it consists of only one VBuffer;
+            for multiclass classification, its size equals the number of classes.
+            </param>
+            <param name="l1IntermediateBias">
+            The array holding the intermediate bias prior to making L1 shrinkage adjustment. It is null iff l1Threshold is zero.
+            Otherwise, for binary classification or regression, it consists of only one value;
+            for multiclass classification, its size equals the number of classes.
+            </param>
+            <param name="featureNormSquared">
+            The array holding the pre-computed squared L2-norm of features for each training example. It may be null. It is always null for
+            binary classification and regression because this quantity is not needed.
+            </param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.SdcaTrainerBase`2.CheckConvergence(Microsoft.ML.Runtime.IProgressChannel,System.Int32,Microsoft.ML.Runtime.Training.FloatLabelCursor.Factory,Microsoft.ML.Runtime.Learners.SdcaTrainerBase{`0,`1}.DualsTableBase,Microsoft.ML.Runtime.Learners.SdcaTrainerBase{`0,`1}.IdToIdxLookup,Microsoft.ML.Runtime.Data.VBuffer{System.Single}[],Microsoft.ML.Runtime.Data.VBuffer{System.Single}[],System.Single[],System.Single[],System.Single[],System.Single[],System.Int64,System.Double[],System.Double@,System.Int32@)">
+            <summary>
+             Returns whether the algorithm converged, and also populates the <paramref name="metrics"/>
+            (which is expected to be parallel to the names returned by <see cref="M:Microsoft.ML.Runtime.Learners.SdcaTrainerBase`2.InitializeConvergenceMetrics(System.String[]@,System.Double[]@)"/>).
+            When called, the <paramref name="metrics"/> is expected to hold the previously reported values.
+            </summary>
+            <param name="pch">The progress reporting channel.</param>
+            <param name="iter">The iteration number, zero based.</param>
+            <param name="cursorFactory">The cursor factory to create cursors over the training data.</param>
+            <param name="duals">
+            The dual variables. For binary classification and regression, there is one dual variable per row.
+            For multiclass classification, there is one dual variable per class per row.
+            </param>
+            <param name="idToIdx">
+            The id to index mapping. May be null. If it is null, the index is given by the
+            corresponding lower bits of the id.
+            </param>
+            <param name="weights">
+            The weights array. For binary classification or regression, it consists of only one VBuffer.
+            For multiclass classification, its size equals the number of classes.
+            </param>
+            <param name="bestWeights">
+            The weights array that corresponds to the best model obtained from the training iterations thus far.
+            </param>
+            <param name="biasUnreg">
+            The array containing unregularized bias terms. For binary classification or regression,
+            it contains only a single value. For multiclass classification its size equals the number of classes.
+            </param>
+            <param name="bestBiasUnreg">
+            The array containing unregularized bias terms corresponding to the best model obtained from the training iterations thus far.
+            For binary classification or regression, it contains only a single value.
+            For multiclass classification its size equals the number of classes.
+            </param>
+            <param name="biasReg">
+            The array containing regularized bias terms. For binary classification or regression,
+            it contains only a single value. For multiclass classification its size equals the number of classes.
+            </param>
+            <param name="bestBiasReg">
+            The array containing regularized bias terms corresponding to the best model obtained from the training iterations thus far.
+            For binary classification or regression, it contains only a single value.
+            For multiclass classification its size equals the number of classes.
+            </param>
+            <param name="count">
+            The count of (valid) training examples. Bad training examples are excluded from this count.
+            </param>
+            <param name="metrics">
+            The array of metrics for progress reporting.
+            </param>
+            <param name="bestPrimalLoss">
+            The primal loss function value corresponding to the best model obtained thus far.
+            </param>
+            <param name="bestIter">The iteration number when the best model is obtained.</param>
+            <returns>Whether the optimization has converged.</returns>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Learners.SdcaTrainerBase`2.DualsTableBase">
+            <summary>
+            Encapsulates the common functionality of storing and
+            retrieving the dual variables.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Learners.SdcaTrainerBase`2.StandardArrayDualsTable">
+            <summary>
+            Implementation of <see cref="T:Microsoft.ML.Runtime.Learners.SdcaTrainerBase`2.DualsTableBase"/> using a standard array.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Learners.SdcaTrainerBase`2.BigArrayDualsTable">
+            <summary>
+            Implementation of <see cref="T:Microsoft.ML.Runtime.Learners.SdcaTrainerBase`2.DualsTableBase"/> using a big array.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.SdcaTrainerBase`2.GetIndexFromIdGetter(Microsoft.ML.Runtime.Learners.SdcaTrainerBase{`0,`1}.IdToIdxLookup,System.Int32)">
+            <summary>
+            Returns a function delegate to retrieve index from id.
+            This is to avoid redundant conditional branches in the tight loop of training.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.SdcaTrainerBase`2.GetIndexFromIdAndRowGetter(Microsoft.ML.Runtime.Learners.SdcaTrainerBase{`0,`1}.IdToIdxLookup,System.Int32)">
+            <summary>
+            Returns a function delegate to retrieve index from id and row.
+            Only works if the cursor is not shuffled.
+            This is to avoid redundant conditional branches in the tight loop of training.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Learners.SdcaTrainerBase`2.IdToIdxLookup">
+            <summary>
+            A hash table data structure to store Id of type <see cref="T:Microsoft.ML.Runtime.Data.UInt128"/>,
+            and accommodates size larger than 2 billion. This class is an extension based on BCL.
+            Two operations are supported: adding and retrieving an id with asymptotically constant complexity.
+            The bucket size are prime numbers, starting from 3 and grows to the next prime larger than
+            double the current size until it reaches the maximum possible size. When a table growth is triggered,
+            the table growing operation initializes a new larger bucket and rehash the existing entries to
+            the new bucket. Such operation has an expected complexity proportional to the size.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.Learners.SdcaTrainerBase`2.IdToIdxLookup.Count">
+            <summary>
+            Gets the count of id entries.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.SdcaTrainerBase`2.IdToIdxLookup.#ctor(System.Int64)">
+            <summary>
+            Initializes an instance of the <see cref="T:Microsoft.ML.Runtime.Learners.SdcaTrainerBase`2.IdToIdxLookup"/> class with the specified size.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.SdcaTrainerBase`2.IdToIdxLookup.Add(Microsoft.ML.Runtime.Data.UInt128)">
+            <summary>
+            Make sure the given id is in this lookup table and return the index of the id.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.SdcaTrainerBase`2.IdToIdxLookup.TryGetIndex(Microsoft.ML.Runtime.Data.UInt128,System.Int64@)">
+            <summary>
+            Find the index of the given id.
+            Returns a bool representing if id is present.
+            Index outputs the index that the id, -1 otherwise.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.SdcaTrainerBase`2.IdToIdxLookup.GetIndexCore(Microsoft.ML.Runtime.Data.UInt128,System.Int64)">
+            <summary>
+            Return the index of value, -1 if it is not present.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.SdcaTrainerBase`2.IdToIdxLookup.AddCore(Microsoft.ML.Runtime.Data.UInt128,System.Int64)">
+            <summary>
+            Adds the value as a TItem. Does not check whether the TItem is already present.
+            Returns the index of the added value.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Learners.CompensatedSum">
+            <summary>
+            Sum with underflow compensation for better numerical stability.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Learners.Sdca">
+            <summary>
+            A component to train an SDCA model.
+            </summary>
+            <summary>
+            The Entry Point for SDCA multiclass.
+            </summary>
+             <summary>
+            The Entry Point for the SDCA regressor.
+             </summary>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.Learners.LinearPredictor.Weights2">
+            <summary> The predictor's feature weight coefficients.</summary>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.Learners.LinearPredictor.Bias">
+            <summary> The predictor's bias term.</summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.LinearPredictor.#ctor(Microsoft.ML.Runtime.IHostEnvironment,System.String,Microsoft.ML.Runtime.Data.VBuffer{System.Single}@,System.Single)">
+            <summary>
+            Constructs a new linear predictor.
+            </summary>
+            <param name="env">The host environment.</param>
+            <param name="name">Component name.</param>
+            <param name="weights">The weights for the linear predictor. Note that this
+            will take ownership of the <see cref="T:Microsoft.ML.Runtime.Data.VBuffer`1"/>.</param>
+            <param name="bias">The bias added to every output score.</param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.LinearPredictor.CombineParameters(System.Collections.Generic.IList{Microsoft.ML.Runtime.Internal.Internallearn.IParameterMixer{System.Single}},Microsoft.ML.Runtime.Data.VBuffer{System.Single}@,System.Single@)">
+            <summary>
+            Combine a bunch of models into one by averaging parameters
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.LinearBinaryPredictor.#ctor(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Data.VBuffer{System.Single}@,System.Single,Microsoft.ML.Runtime.Learners.LinearModelStatistics)">
+            <summary>
+            Constructs a new linear binary predictor.
+            </summary>
+            <param name="env">The host environment.</param>
+            <param name="weights">The weights for the linear predictor. Note that this
+            will take ownership of the <see cref="T:Microsoft.ML.Runtime.Data.VBuffer`1"/>.</param>
+            <param name="bias">The bias added to every output score.</param>
+            <param name="stats"></param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.LinearBinaryPredictor.CombineParameters(System.Collections.Generic.IList{Microsoft.ML.Runtime.Internal.Internallearn.IParameterMixer{System.Single}})">
+            <summary>
+            Combine a bunch of models into one by averaging parameters
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.LinearBinaryPredictor.GetSummaryInKeyValuePairs(Microsoft.ML.Runtime.Data.RoleMappedSchema)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.RegressionPredictor.SaveAsIni(System.IO.TextWriter,Microsoft.ML.Runtime.Data.RoleMappedSchema,Microsoft.ML.Runtime.Internal.Calibration.ICalibrator)">
+            <summary>
+            Output the INI model to a given writer
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.LinearRegressionPredictor.#ctor(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Data.VBuffer{System.Single}@,System.Single)">
+            <summary>
+            Constructs a new linear regression predictor.
+            </summary>
+            <param name="env">The host environment.</param>
+            <param name="weights">The weights for the linear predictor. Note that this
+            will take ownership of the <see cref="T:Microsoft.ML.Runtime.Data.VBuffer`1"/>.</param>
+            <param name="bias">The bias added to every output score.</param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.LinearRegressionPredictor.CombineParameters(System.Collections.Generic.IList{Microsoft.ML.Runtime.Internal.Internallearn.IParameterMixer{System.Single}})">
+            <summary>
+            Combine a bunch of models into one by averaging parameters
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.LinearRegressionPredictor.GetSummaryInKeyValuePairs(Microsoft.ML.Runtime.Data.RoleMappedSchema)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.PoissonRegressionPredictor.CombineParameters(System.Collections.Generic.IList{Microsoft.ML.Runtime.Internal.Internallearn.IParameterMixer{System.Single}})">
+            <summary>
+            Combine a bunch of models into one by averaging parameters
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Learners.LinearPredictorUtils">
+            <summary>
+            Helper methods for linear predictors
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.LinearPredictorUtils.SaveAsCode(System.IO.TextWriter,Microsoft.ML.Runtime.Data.VBuffer{System.Single}@,System.Single,Microsoft.ML.Runtime.Data.RoleMappedSchema,System.String)">
+            <summary>
+            print the linear model as code
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.LinearPredictorUtils.FeatureNameAsCode(System.String,System.Int32)">
+            <summary>
+            Ensure that feature name is a legitimate variable name
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.LinearPredictorUtils.LinearModelAsIni(Microsoft.ML.Runtime.Data.VBuffer{System.Single}@,System.Single,Microsoft.ML.Runtime.IPredictor,Microsoft.ML.Runtime.Data.RoleMappedSchema,Microsoft.ML.Runtime.Internal.Calibration.PlattCalibrator)">
+            <summary>
+            Build a Bing TreeEnsemble .ini representation of the given predictor
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.LinearPredictorUtils.LinearModelAsText(System.String,System.String,System.String,Microsoft.ML.Runtime.Data.VBuffer{System.Single}@,System.Single,Microsoft.ML.Runtime.Data.RoleMappedSchema,Microsoft.ML.Runtime.Internal.Calibration.PlattCalibrator)">
+            <summary>
+            Output the weights of a linear model to a given writer
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.LinearPredictorUtils.SaveLinearModelWeightsInKeyValuePairs(Microsoft.ML.Runtime.Data.VBuffer{System.Single}@,System.Single,Microsoft.ML.Runtime.Data.RoleMappedSchema,System.Collections.Generic.List{System.Collections.Generic.KeyValuePair{System.String,System.Object}})">
+            <summary>
+            Output the weights of a linear model to key value pairs.
+            </summary>
+        </member>
+        <member name="F:Microsoft.ML.Runtime.Learners.LbfgsTrainerBase`2.ArgumentsBase.Quiet">
+            <summary>
+            Features must occur in at least this many instances to be included
+            </summary>
+            <remarks>If greater than 1, forces an initialization pass over the data</remarks>
+        </member>
+        <member name="F:Microsoft.ML.Runtime.Learners.LbfgsTrainerBase`2.ArgumentsBase.InitWtsDiameter">
+            <summary>
+            Init Weights Diameter
+            </summary>
+        </member>
+        <member name="F:Microsoft.ML.Runtime.Learners.LbfgsTrainerBase`2.ArgumentsBase.NumThreads">
+            <summary>
+            Number of threads. Null means use the number of processors.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.LbfgsTrainerBase`2.InitializeWeightsSgd(Microsoft.ML.Runtime.IChannel,Microsoft.ML.Runtime.Training.FloatLabelCursor.Factory)">
+            <summary>
+            Initialize weights by running SGD up to specified tolerance.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.LbfgsTrainerBase`2.Train(Microsoft.ML.Runtime.TrainContext)">
+            <summary>
+            The basic training calls the optimizer
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.LbfgsTrainerBase`2.DifferentiableFunction(Microsoft.ML.Runtime.Data.VBuffer{System.Single}@,Microsoft.ML.Runtime.Data.VBuffer{System.Single}@,Microsoft.ML.Runtime.IProgressChannelProvider)">
+            <summary>
+            The gradient being used by the optimizer
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.LbfgsTrainerBase`2.DifferentiableFunctionMultithreaded(Microsoft.ML.Runtime.Data.VBuffer{System.Single}@,Microsoft.ML.Runtime.Data.VBuffer{System.Single}@,Microsoft.ML.Runtime.IProgressChannel)">
+            <summary>
+            Batch-parallel optimizer
+            </summary>
+            <remarks>
+            REVIEW: consider getting rid of multithread-targeted members
+            Using TPL, the distinction between Multithreaded and Sequential implementations is unnecessary
+            </remarks>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Learners.LogisticRegression">
+            <summary>
+        Logistic Regression is a method in statistics used to predict the probability of occurrence of an event and can be used as 
+        a classification algorithm. The algorithm predicts the probability of occurrence of an event by fitting data to a logistical function.
+      </summary><remarks>
+        If the dependent variable has more than two possible values (blood type given diagnostic test results), 
+        then the logistic regression is multinomial.
+        <para>
+          The optimization technique used for LogisticRegression Classifier is based on the limited memory Broyden-Fletcher-Goldfarb-Shanno (L-BFGS).
+          Both the L-BFGS and regular BFGS algorithms use quasi-Newtonian methods to estimate the computationally intensive 
+          Hessian matrix in the equation used by Newton's method to calculate steps.
+          But the L-BFGS approximation uses only a limited amount of memory to compute the next step direction,
+          so that it is especially suited for problems with a large number of variables.
+          The MemorySize argument specifies the number of past positions and gradients to store for use in the 
+          computation of the next step.
+        </para>
+        <para>
+          This learner can use elastic net regularization: a linear combination of L1 (LASSO) and L2 (ridge) regularizations.
+          Regularization is a method that can render an ill-posed problem more tractable by imposing constraints that provide information 
+          to supplement the data and that prevents overfitting by penalizing models with extreme coefficient values.
+          This can improve the generalization of the model learned by selecting the optimal complexity in the bias-variance tradeoff.
+          Regularization works by adding the penalty that is associated with coefficient values to the error of the hypothesis.
+          An accurate model with extreme coefficient values would be penalized more, but a less accurate model with more conservative 
+          values would be penalized less. L1 and L2 regularization have different effects and uses that are complementary in certain respects.
+        </para>
+          <list type="bullet">
+            <item><description>
+              L1Weight can be applied to sparse models, when working with high-dimensional data. It pulls small weights associated features
+              that are relatively unimportant towards 0.
+              L1 regularization is an implementation of OWLQN, based on:
+              <a href="https://citeseer.ist.psu.edu/viewdoc/summary?doi=10.1.1.68.5260">Scalable training of L1-regularized log-linear models</a>
+            </description></item>
+            <item><description>L2Weight is preferable for data that is not sparse. It pulls large weights towards zero.</description></item>
+          </list>
+          Adding the ridge penalty to the regularization overcomes some of lasso's limitations. It can improve its predictive accuracy, for example, when the number of predictors is greater than the sample size. If x = l1_weight and y = l2_weight, ax + by = c defines the linear span of the regularization terms.
+          The default values of x and y are both 1.
+          An agressive regularization can harm predictive capacity by excluding important variables out of the model. So choosing the optimal values for the regularization parameters is important for the performance of the logistic regression model.
+        <para>For more information see:</para>
+        <list type="bullet">
+          <item><description><a href="https://research.microsoft.com/apps/pubs/default.aspx?id=78900">Scalable Training of L1-Regularized Log-Linear Models</a>.</description></item>
+          <item><description><a href="https://msdn.microsoft.com/en-us/magazine/dn904675.aspx">Test Run - L1 and L2 Regularization for Machine Learning</a>.</description></item>
+          <item><description><a href="https://en.wikipedia.org/wiki/L-BFGS">Wikipedia: L-BFGS</a>.</description></item>
+          <item><description><a href="https://en.wikipedia.org/wiki/Logistic_regression">Wikipedia: Logistic regression</a>.</description></item>
+        </list>
+      </remarks>
+            <!-- No matching elements were found for the following include tag --><include file="doc.xml" path="docs/members/example[@name=&quot;LogisticRegressionBinaryClassifier&quot;]/*" />
+            <summary>
+            A component to train a logistic regression model.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Learners.MulticlassLogisticRegression">
+            <summary>
+        Logistic Regression is a method in statistics used to predict the probability of occurrence of an event and can be used as 
+        a classification algorithm. The algorithm predicts the probability of occurrence of an event by fitting data to a logistical function.
+      </summary><remarks>
+        If the dependent variable has more than two possible values (blood type given diagnostic test results), 
+        then the logistic regression is multinomial.
+        <para>
+          The optimization technique used for LogisticRegression Classifier is based on the limited memory Broyden-Fletcher-Goldfarb-Shanno (L-BFGS).
+          Both the L-BFGS and regular BFGS algorithms use quasi-Newtonian methods to estimate the computationally intensive 
+          Hessian matrix in the equation used by Newton's method to calculate steps.
+          But the L-BFGS approximation uses only a limited amount of memory to compute the next step direction,
+          so that it is especially suited for problems with a large number of variables.
+          The MemorySize argument specifies the number of past positions and gradients to store for use in the 
+          computation of the next step.
+        </para>
+        <para>
+          This learner can use elastic net regularization: a linear combination of L1 (LASSO) and L2 (ridge) regularizations.
+          Regularization is a method that can render an ill-posed problem more tractable by imposing constraints that provide information 
+          to supplement the data and that prevents overfitting by penalizing models with extreme coefficient values.
+          This can improve the generalization of the model learned by selecting the optimal complexity in the bias-variance tradeoff.
+          Regularization works by adding the penalty that is associated with coefficient values to the error of the hypothesis.
+          An accurate model with extreme coefficient values would be penalized more, but a less accurate model with more conservative 
+          values would be penalized less. L1 and L2 regularization have different effects and uses that are complementary in certain respects.
+        </para>
+          <list type="bullet">
+            <item><description>
+              L1Weight can be applied to sparse models, when working with high-dimensional data. It pulls small weights associated features
+              that are relatively unimportant towards 0.
+              L1 regularization is an implementation of OWLQN, based on:
+              <a href="https://citeseer.ist.psu.edu/viewdoc/summary?doi=10.1.1.68.5260">Scalable training of L1-regularized log-linear models</a>
+            </description></item>
+            <item><description>L2Weight is preferable for data that is not sparse. It pulls large weights towards zero.</description></item>
+          </list>
+          Adding the ridge penalty to the regularization overcomes some of lasso's limitations. It can improve its predictive accuracy, for example, when the number of predictors is greater than the sample size. If x = l1_weight and y = l2_weight, ax + by = c defines the linear span of the regularization terms.
+          The default values of x and y are both 1.
+          An agressive regularization can harm predictive capacity by excluding important variables out of the model. So choosing the optimal values for the regularization parameters is important for the performance of the logistic regression model.
+        <para>For more information see:</para>
+        <list type="bullet">
+          <item><description><a href="https://research.microsoft.com/apps/pubs/default.aspx?id=78900">Scalable Training of L1-Regularized Log-Linear Models</a>.</description></item>
+          <item><description><a href="https://msdn.microsoft.com/en-us/magazine/dn904675.aspx">Test Run - L1 and L2 Regularization for Machine Learning</a>.</description></item>
+          <item><description><a href="https://en.wikipedia.org/wiki/L-BFGS">Wikipedia: L-BFGS</a>.</description></item>
+          <item><description><a href="https://en.wikipedia.org/wiki/Logistic_regression">Wikipedia: Logistic regression</a>.</description></item>
+        </list>
+      </remarks>
+            <!-- No matching elements were found for the following include tag --><include file="doc.xml" path="docs/members/example[@name=&quot;LogisticRegressionClassifier&quot;]/*" />
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.MulticlassLogisticRegressionPredictor.#ctor(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Data.VBuffer{System.Single}[],System.Single[],System.Int32,System.Int32,System.String[],Microsoft.ML.Runtime.Learners.LinearModelStatistics)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.ML.Runtime.Learners.MulticlassLogisticRegressionPredictor"/> class.
+            This constructor is called by <see cref="T:Microsoft.ML.Runtime.Learners.SdcaMultiClassTrainer"/> to create the predictor.
+            </summary>
+            <param name="env">The host environment.</param>
+            <param name="weights">The array of weights vectors. It should contain <paramref name="numClasses"/> weights.</param>
+            <param name="bias">The array of biases. It should contain contain <paramref name="numClasses"/> weights.</param>
+            <param name="numClasses">The number of classes for multi-class classification. Must be at least 2.</param>
+            <param name="numFeatures">The logical length of the feature vector.</param>
+            <param name="labelNames">The optional label names. If specified not null, it should have the same length as <paramref name="numClasses"/>.</param>
+            <param name="stats">The model statistics.</param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.MulticlassLogisticRegressionPredictor.SaveAsText(System.IO.TextWriter,Microsoft.ML.Runtime.Data.RoleMappedSchema)">
+            <summary>
+            Output the text model to a given writer
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.MulticlassLogisticRegressionPredictor.GetSummaryInKeyValuePairs(Microsoft.ML.Runtime.Data.RoleMappedSchema)">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.MulticlassLogisticRegressionPredictor.SaveAsCode(System.IO.TextWriter,Microsoft.ML.Runtime.Data.RoleMappedSchema)">
+            <summary>
+            Output the text model to a given writer
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.MulticlassLogisticRegressionPredictor.GetWeights(Microsoft.ML.Runtime.Data.VBuffer{System.Single}[]@,System.Int32@)">
+            <summary>
+            Copies the weight vector for each class into a set of buffers.
+            </summary>
+            <param name="weights">A possibly reusable set of vectors, which will
+            be expanded as necessary to accomodate the data.</param>
+            <param name="numClasses">Set to the rank, which is also the logical length
+            of <paramref name="weights"/>.</param>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Learners.CoefficientStatistics">
+            <summary>
+            Represents a coefficient statistics object.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Learners.LinearModelStatistics">
+            <summary>
+            The statistics for linear predictor.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.LinearModelStatistics.GetCoefficientStatistics(Microsoft.ML.Runtime.Learners.LinearBinaryPredictor,Microsoft.ML.Runtime.Data.RoleMappedSchema,System.Int32)">
+            <summary>
+            Gets the coefficient statistics as an object.
+            </summary>
+        </member>
+        <member name="F:Microsoft.ML.Runtime.Learners.MetaMulticlassTrainer`2.LabelColumn">
+            <summary>
+            The label column that the trainer expects.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.MetaMulticlassTrainer`2.#ctor(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Learners.MetaMulticlassTrainer{`0,`1}.ArgumentsBase,System.String,System.String,Microsoft.ML.Runtime.Training.ITrainerEstimator{Microsoft.ML.Runtime.ISingleFeaturePredictionTransformer{Microsoft.ML.Runtime.IPredictorProducing{System.Single}},Microsoft.ML.Runtime.IPredictorProducing{System.Single}},Microsoft.ML.Runtime.Internal.Calibration.ICalibratorTrainer)">
+            <summary>
+            Initializes the <see cref="T:Microsoft.ML.Runtime.Learners.MetaMulticlassTrainer`2"/> from the Arguments class.
+            </summary>
+            <param name="env">The private instance of the <see cref="T:Microsoft.ML.Runtime.IHostEnvironment"/>.</param>
+            <param name="args">The legacy arguments <see cref="T:Microsoft.ML.Runtime.Learners.MetaMulticlassTrainer`2.ArgumentsBase"/>class.</param>
+            <param name="name">The component name.</param>
+            <param name="labelColumn">The label column for the metalinear trainer and the binary trainer.</param>
+            <param name="singleEstimator">The binary estimator.</param>
+            <param name="calibrator">The calibrator. If a calibrator is not explicitly provided, it will default to <see cref="T:Microsoft.ML.Runtime.PlattCalibratorCalibratorTrainer"/></param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.MetaMulticlassTrainer`2.Train(Microsoft.ML.Runtime.TrainContext)">
+            <summary>
+            The legacy train method.
+            </summary>
+            <param name="context">The trainig context for this learner.</param>
+            <returns>The trained model.</returns>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.MetaMulticlassTrainer`2.GetOutputSchema(Microsoft.ML.Core.Data.SchemaShape)">
+            <summary>
+             Gets the output columns.
+            </summary>
+            <param name="inputSchema">The input schema. </param>
+            <returns>The output <see cref="T:Microsoft.ML.Core.Data.SchemaShape"/></returns>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.MetaMulticlassTrainer`2.MetadataForScoreColumn">
+            <summary>
+            Normal metadata that we produce for score columns.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.MetaMulticlassTrainer`2.Fit(Microsoft.ML.Runtime.Data.IDataView)">
+            <summary>
+            Fits the data to the trainer.
+            </summary>
+            <param name="input">The input data to fit to.</param>
+            <returns>The transformer.</returns>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Learners.MultiClassNaiveBayesTrainer">
+            <member name="MultiClassNaiveBayesTrainer">
+      <summary>
+        Trains a multiclass Naive Bayes predictor that supports binary feature values.
+      </summary>
+      <remarks>
+        <a href="https://en.wikipedia.org/wiki/Naive_Bayes_classifier">Naive Bayes</a> is a probabilistic classifier that can be used for multiclass problems.
+        Using Bayes' theorem, the conditional probability for a sample belonging to a class can be calculated based on the sample count for each feature combination groups.
+        However, Naive Bayes Classifier is feasible only if the number of features and the values each feature can take is relatively small.
+        It assumes independence among the presence of features in a class even though they may be dependent on each other.
+        This multi-class trainer accepts binary feature values of type float, i.e., feature values are either true or false.
+        Specifically a feature value greater than zero is treated as true.
+      </remarks>
+      <seealso cref="T:Microsoft.ML.Legacy.Trainers.LogisticRegressionClassifier" />
+      <seealso cref="T:Microsoft.ML.Legacy.Trainers.LightGbmClassifier" />
+      <seealso cref="T:Microsoft.ML.Legacy.Trainers.StochasticDualCoordinateAscentClassifier" />
+      <seealso cref="T:Microsoft.ML.Legacy.Models.OneVersusAll" />
+    </member>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Learners.Ova">
+            <member name="OVA">
+      <summary>
+        Trains a one-versus-all multi-class classifier on top of the specified binary classifier.
+      </summary>
+      <remarks>
+        <para>In this strategy, a binary classification algorithm is used to train one classifier for each class, which distinguishes that class from all other classes.
+        Prediction is then performed by running these binary classifiers, and choosing the prediction with the highest confidence score.</para>
+        <para>This algorithm can be used with any of the binary classifiers in ML.NET.
+        A few binary classifiers already have implementation for multi-class problems,
+        thus users can choose either one depending on the context.</para>
+        <para>The OVA version of a binary classifier, such as wrapping a LightGbmBinaryClassifier ,
+        can be different from LightGbmClassifier, which develops a multi-class classifier directly.</para>
+        <para>Note that even if the classifier indicates that it does not need caching, OneVersusAll will always
+        request caching, as it will be performing multiple passes over the data set.
+        These learner will request normalization from the data pipeline if the classifier indicates it would benefit from it.</para>
+      </remarks>
+      <seealso cref="T:Microsoft.ML.Legacy.Trainers.LogisticRegressionClassifier" />
+      <seealso cref="T:Microsoft.ML.Legacy.Trainers.LightGbmClassifier" />
+      <seealso cref="T:Microsoft.ML.Legacy.Trainers.StochasticDualCoordinateAscentClassifier" />
+      <seealso cref="T:Microsoft.ML.Legacy.Trainers.NaiveBayesClassifier" />
+      <example>
+        <code language="csharp">
+          pipeline.Add(OneVersusAll.With(new StochasticDualCoordinateAscentBinaryClassifier()));
+        </code>
+      </example>
+    </member>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Learners.Ova.Arguments">
+            <summary>
+            Arguments passed to OVA.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.Ova.#ctor(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Learners.Ova.Arguments)">
+            <summary>
+            Legacy constructor that builds the <see cref="T:Microsoft.ML.Runtime.Learners.Ova"/> trainer supplying the base trainer to use, for the classification task
+            through the <see cref="T:Microsoft.ML.Runtime.Learners.Ova.Arguments"/>arguments.
+            Developers should instantiate OVA by supplying the trainer argument directly to the OVA constructor
+            using the other public constructor.
+            </summary>
+            <param name="env">The private <see cref="T:Microsoft.ML.Runtime.IHostEnvironment"/> for this estimator.</param>
+            <param name="args">The legacy <see cref="T:Microsoft.ML.Runtime.Learners.Ova.Arguments"/></param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.Ova.#ctor(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Training.ITrainerEstimator{Microsoft.ML.Runtime.ISingleFeaturePredictionTransformer{Microsoft.ML.Runtime.IPredictorProducing{System.Single}},Microsoft.ML.Runtime.IPredictorProducing{System.Single}},System.String,System.Boolean,Microsoft.ML.Runtime.Internal.Calibration.ICalibratorTrainer,System.Int32,System.Boolean)">
+            <summary>
+            Initializes a new instance of <see cref="T:Microsoft.ML.Runtime.Learners.Ova"/>.
+            </summary>
+            <param name="env">The <see cref="T:Microsoft.ML.Runtime.IHostEnvironment"/> instance.</param>
+            <param name="binaryEstimator">An instance of a binary <see cref="T:Microsoft.ML.Runtime.Training.ITrainerEstimator`2"/> used as the base trainer.</param>
+            <param name="calibrator">The calibrator. If a calibrator is not explicitely provided, it will default to <see cref="T:Microsoft.ML.Runtime.PlattCalibratorCalibratorTrainer"/></param>
+            <param name="labelColumn">The name of the label colum.</param>
+            <param name="imputeMissingLabelsAsNegative">Whether to treat missing labels as having negative labels, instead of keeping them missing.</param>
+            <param name="maxCalibrationExamples">Number of instances to train the calibrator.</param>
+            <param name="useProbabilities">Use probabilities (vs. raw outputs) to identify top-score category.</param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.OvaPredictor.Create(Microsoft.ML.Runtime.IHost,Microsoft.ML.Runtime.IPredictorProducing{System.Single}[])">
+            <summary>
+            Create a OVA predictor from an array of predictors.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Learners.Pkpd">
+             <summary>
+             In this strategy, a binary classification algorithm is trained on each pair of classes.
+             The pairs are unordered but created with replacement: so, if there were three classes, 0, 1,
+             2, we would train classifiers for the pairs (0,0), (0,1), (0,2), (1,1), (1,2),
+             and(2,2). For each binary classifier, an input data point is considered a
+             positive example if it is in either of the two classes in the pair, and a
+             negative example otherwise. At prediction time, the probabilities for each
+             pair of classes is considered as the probability of being in either class of
+             the pair given the data, and the final predictive probabilities out of that
+             per class are calculated given the probability that an example is in any given
+             pair.
+            
+             These two can allow you to exploit trainers that do not naturally have a
+             multiclass option, e.g., using the Runtime.FastTree.FastTreeBinaryClassificationTrainer
+             to solve a multiclass problem.
+             Alternately, it can allow ML.NET to solve a "simpler" problem even in the cases
+             where the trainer has a multiclass option, but using it directly is not
+             practical due to, usually, memory constraints.For example, while a multiclass
+             logistic regression is a more principled way to solve a multiclass problem, it
+             requires that the learner store a lot more intermediate state in the form of
+             L-BFGS history for all classes *simultaneously*, rather than just one-by-one
+             as would be needed for OVA.
+             </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Learners.Pkpd.Arguments">
+            <summary>
+            Arguments passed to PKPD.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.Pkpd.#ctor(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Learners.Pkpd.Arguments)">
+            <summary>
+            Legacy constructor that builds the <see cref="T:Microsoft.ML.Runtime.Learners.Pkpd"/> trainer supplying the base trainer to use, for the classification task
+            through the <see cref="T:Microsoft.ML.Runtime.Learners.Pkpd.Arguments"/>arguments.
+            Developers should instantiate <see cref="T:Microsoft.ML.Runtime.Learners.Pkpd"/> by supplying the trainer argument directly to the <see cref="T:Microsoft.ML.Runtime.Learners.Pkpd"/> constructor
+            using the other public constructor.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.Pkpd.#ctor(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Training.ITrainerEstimator{Microsoft.ML.Runtime.ISingleFeaturePredictionTransformer{Microsoft.ML.Runtime.IPredictorProducing{System.Single}},Microsoft.ML.Runtime.IPredictorProducing{System.Single}},System.String,System.Boolean,Microsoft.ML.Runtime.Internal.Calibration.ICalibratorTrainer,System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Microsoft.ML.Runtime.Learners.Pkpd"/>
+            </summary>
+            <param name="env">The <see cref="T:Microsoft.ML.Runtime.IHostEnvironment"/> instance.</param>
+            <param name="binaryEstimator">An instance of a binary <see cref="T:Microsoft.ML.Runtime.Training.ITrainerEstimator`2"/> used as the base trainer.</param>
+            <param name="calibrator">The calibrator. If a calibrator is not explicitely provided, it will default to <see cref="T:Microsoft.ML.Runtime.PlattCalibratorCalibratorTrainer"/></param>
+            <param name="labelColumn">The name of the label colum.</param>
+            <param name="imputeMissingLabelsAsNegative">Whether to treat missing labels as having negative labels, instead of keeping them missing.</param>
+            <param name="maxCalibrationExamples">Number of instances to train the calibrator.</param>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.Pkpd.Fit(Microsoft.ML.Runtime.Data.IDataView)">
+            <summary>
+            Fits the data to the transformer
+            </summary>
+            <param name="input">The input data.</param>
+            <returns>The trained predictor.</returns>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.AveragedLinearTrainer`2.AveragedMargin(Microsoft.ML.Runtime.Data.VBuffer{System.Single}@)">
+            <summary>
+            Return the raw margin from the decision hyperplane
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.AveragedLinearTrainer`2.IncrementAverageNonLazy">
+            <summary>
+            Add current weights and bias to average weights/bias.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Learners.AveragedPerceptronTrainer">
+            <summary>
+        Averaged Perceptron Binary Classifier. 
+      </summary><remarks>
+        Perceptron is a classification algorithm that makes its predictions based on a linear function.
+        I.e., for an instance with feature values f0, f1,..., f_D-1, , the prediction is given by the sign of sigma[0,D-1] ( w_i * f_i), where w_0, w_1,...,w_D-1 are the weights computed by the algorithm.
+        <para>
+          Perceptron is an online algorithm, i.e., it processes the instances in the training set one at a time.
+          The weights are initialized to be 0, or some random values. Then, for each example in the training set, the value of sigma[0, D-1] (w_i * f_i) is computed.
+          If this value has the same sign as the label of the current example, the weights remain the same. If they have opposite signs,
+          the weights vector is updated by either subtracting or adding (if the label is negative or positive, respectively) the feature vector of the current example,
+          multiplied by a factor 0 &lt; a &lt;= 1, called the learning rate. In a generalization of this algorithm, the weights are updated by adding the feature vector multiplied by the learning rate,
+          and by the gradient of some loss function (in the specific case described above, the loss is hinge-loss, whose gradient is 1 when it is non-zero).
+        </para>
+        <para>
+          In Averaged Perceptron (AKA voted-perceptron), the weight vectors are stored,
+          together with a weight that counts the number of iterations it survived (this is equivalent to storing the weight vector after every iteration, regardless of whether it was updated or not).
+          The prediction is then calculated by taking the weighted average of all the sums sigma[0, D-1] (w_i * f_i) or the different weight vectors.
+        </para>
+        <para> For more information see:</para>
+        <para><a href="https://en.wikipedia.org/wiki/Perceptron">Wikipedia entry for Perceptron</a></para>
+        <para><a href="https://citeseer.ist.psu.edu/viewdoc/summary?doi=10.1.1.48.8200">Large Margin Classification Using the Perceptron Algorithm</a></para>
+      </remarks>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Learners.LinearSvm">
+            <summary>
+            Linear SVM that implements PEGASOS for training. See: http://ttic.uchicago.edu/~shai/papers/ShalevSiSr07.pdf
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.LinearSvm.Margin(Microsoft.ML.Runtime.Data.VBuffer{System.Single}@)">
+            <summary>
+            Return the raw margin from the decision hyperplane
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.LinearSvm.ProcessDataInstance(Microsoft.ML.Runtime.IChannel,Microsoft.ML.Runtime.Data.VBuffer{System.Single}@,System.Single,System.Single)">
+            <summary>
+            Observe an example and update weights if necessary
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.LinearSvm.UpdateWeights(Microsoft.ML.Runtime.Data.VBuffer{System.Single}@,System.Single)">
+            <summary>
+            Updates the weights at the end of the batch. Since weightsUpdate can be an instance
+            feature vector, this function should not change the contents of weightsUpdate.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Learners.OnlineGradientDescentTrainer">
+            <summary>
+        Stochastic gradient descent is an optimization method used to train a wide range of models in machine learning. 
+        In the ML.Net the implementation of OGD, is for linear regression. 
+      </summary><remarks>
+        Stochastic gradient descent uses a simple yet efficient iterative technique to fit model coefficients using error gradients for convex loss functions.
+        The OnlineGradientDescentRegressor implements the standard (non-batch) SGD, with a choice of loss functions,
+        and an option to update the weight vector using the average of the vectors seen over time (averaged argument is set to True by default).
+      </remarks>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.OnlineGradientDescentTrainer.Arguments.#ctor">
+            <summary>
+            Set defaults that vary from the base type.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.OnlineLinearTrainer`2.ScaleWeights">
+            <summary>
+            Propagates the <see cref="F:Microsoft.ML.Runtime.Learners.OnlineLinearTrainer`2.WeightsScale"/> to the <see cref="F:Microsoft.ML.Runtime.Learners.OnlineLinearTrainer`2.Weights"/> vector.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.OnlineLinearTrainer`2.ScaleWeightsIfNeeded">
+            <summary>
+            Conditionally propagates the <see cref="F:Microsoft.ML.Runtime.Learners.OnlineLinearTrainer`2.WeightsScale"/> to the <see cref="F:Microsoft.ML.Runtime.Learners.OnlineLinearTrainer`2.Weights"/> vector
+            when it reaches a scale where additions to weights would start dropping too much precision.
+            ("Too much" is mostly empirically defined.)
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.OnlineLinearTrainer`2.ProcessDataInstance(Microsoft.ML.Runtime.IChannel,Microsoft.ML.Runtime.Data.VBuffer{System.Single}@,System.Single,System.Single)">
+            <summary>
+            This should be overridden by derived classes. This implementation simply increments
+            _numIterExamples and dumps debug information to the console.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.OnlineLinearTrainer`2.CurrentMargin(Microsoft.ML.Runtime.Data.VBuffer{System.Single}@)">
+            <summary>
+            Return the raw margin from the decision hyperplane
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Learners.PoissonRegression">
+            <summary>
+        Trains a Poisson Regression model.  
+      </summary><remarks>
+        <a href="https://en.wikipedia.org/wiki/Poisson_regression">Poisson regression</a> is a parameterized regression method.
+        It assumes that the log of the conditional mean of the dependent variable follows a linear function of the dependent variables.
+        Assuming that the dependent variable follows a Poisson distribution, the parameters of the regressor can be estimated by maximizing the likelihood of the obtained observations.
+      </remarks>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Learners.SdcaMultiClassTrainer">
+            <summary>
+        Train an SDCA linear model.
+      </summary><remarks>
+        This classifier is a trainer based on the Stochastic Dual Coordinate Ascent(SDCA) method, a state-of-the-art optimization technique for convex objective functions.
+        The algorithm can be scaled for use on large out-of-memory data sets due to a semi-asynchronized implementation that supports multi-threading.
+        <para>
+          Convergence is underwritten by periodically enforcing synchronization between primal and dual updates in a separate thread.
+          Several choices of loss functions are also provided.
+          The SDCA method combines several of the best properties and capabilities of logistic regression and SVM algorithms.
+        </para>
+        <para>
+          Note that SDCA is a stochastic and streaming optimization algorithm.
+          The results depends on the order of the training data. For reproducible results, it is recommended that one sets 'Shuffle' to
+          False and 'NumThreads' to 1.
+          Elastic net regularization can be specified by the 'L2Const' and 'L1Threshold' parameters. Note that the 'L2Const' has an effect on the rate of convergence.
+          In general, the larger the 'L2Const', the faster SDCA converges.
+        </para>
+        <para>For more information, see:</para>
+        <list type="bullet">
+          <item><description>
+            <a href="https://www.microsoft.com/en-us/research/wp-content/uploads/2016/06/main-3.pdf">Scaling Up Stochastic Dual Coordinate Ascent</a>.
+          </description></item>
+          <item><description>
+            <a href="http://www.jmlr.org/papers/volume14/shalev-shwartz13a/shalev-shwartz13a.pdf">Stochastic Dual Coordinate Ascent Methods for Regularized Loss Minimization</a>.
+          </description></item>
+        </list>
+       </remarks>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.SdcaMultiClassTrainer.TrainWithoutLock(Microsoft.ML.Runtime.IProgressChannelProvider,Microsoft.ML.Runtime.Training.FloatLabelCursor.Factory,Microsoft.ML.Runtime.IRandom,Microsoft.ML.Runtime.Learners.SdcaTrainerBase{Microsoft.ML.Runtime.Data.MulticlassPredictionTransformer{Microsoft.ML.Runtime.Learners.MulticlassLogisticRegressionPredictor},Microsoft.ML.Runtime.Learners.MulticlassLogisticRegressionPredictor}.IdToIdxLookup,System.Int32,Microsoft.ML.Runtime.Learners.SdcaTrainerBase{Microsoft.ML.Runtime.Data.MulticlassPredictionTransformer{Microsoft.ML.Runtime.Learners.MulticlassLogisticRegressionPredictor},Microsoft.ML.Runtime.Learners.MulticlassLogisticRegressionPredictor}.DualsTableBase,System.Single[],System.Single[],System.Single,Microsoft.ML.Runtime.Data.VBuffer{System.Single}[],System.Single[],Microsoft.ML.Runtime.Data.VBuffer{System.Single}[],System.Single[],System.Single[])">
+            <inheritdoc/>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.SdcaMultiClassTrainer.CheckConvergence(Microsoft.ML.Runtime.IProgressChannel,System.Int32,Microsoft.ML.Runtime.Training.FloatLabelCursor.Factory,Microsoft.ML.Runtime.Learners.SdcaTrainerBase{Microsoft.ML.Runtime.Data.MulticlassPredictionTransformer{Microsoft.ML.Runtime.Learners.MulticlassLogisticRegressionPredictor},Microsoft.ML.Runtime.Learners.MulticlassLogisticRegressionPredictor}.DualsTableBase,Microsoft.ML.Runtime.Learners.SdcaTrainerBase{Microsoft.ML.Runtime.Data.MulticlassPredictionTransformer{Microsoft.ML.Runtime.Learners.MulticlassLogisticRegressionPredictor},Microsoft.ML.Runtime.Learners.MulticlassLogisticRegressionPredictor}.IdToIdxLookup,Microsoft.ML.Runtime.Data.VBuffer{System.Single}[],Microsoft.ML.Runtime.Data.VBuffer{System.Single}[],System.Single[],System.Single[],System.Single[],System.Single[],System.Int64,System.Double[],System.Double@,System.Int32@)">
+            <inheritdoc/>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Learners.SdcaRegressionTrainer">
+            <summary>
+        Train an SDCA linear model.
+      </summary><remarks>
+        This classifier is a trainer based on the Stochastic Dual Coordinate Ascent(SDCA) method, a state-of-the-art optimization technique for convex objective functions.
+        The algorithm can be scaled for use on large out-of-memory data sets due to a semi-asynchronized implementation that supports multi-threading.
+        <para>
+          Convergence is underwritten by periodically enforcing synchronization between primal and dual updates in a separate thread.
+          Several choices of loss functions are also provided.
+          The SDCA method combines several of the best properties and capabilities of logistic regression and SVM algorithms.
+        </para>
+        <para>
+          Note that SDCA is a stochastic and streaming optimization algorithm.
+          The results depends on the order of the training data. For reproducible results, it is recommended that one sets 'Shuffle' to
+          False and 'NumThreads' to 1.
+          Elastic net regularization can be specified by the 'L2Const' and 'L1Threshold' parameters. Note that the 'L2Const' has an effect on the rate of convergence.
+          In general, the larger the 'L2Const', the faster SDCA converges.
+        </para>
+        <para>For more information, see:</para>
+        <list type="bullet">
+          <item><description>
+            <a href="https://www.microsoft.com/en-us/research/wp-content/uploads/2016/06/main-3.pdf">Scaling Up Stochastic Dual Coordinate Ascent</a>.
+          </description></item>
+          <item><description>
+            <a href="http://www.jmlr.org/papers/volume14/shalev-shwartz13a/shalev-shwartz13a.pdf">Stochastic Dual Coordinate Ascent Methods for Regularized Loss Minimization</a>.
+          </description></item>
+        </list>
+       </remarks>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Learners.SdcaStatic">
+            <summary>
+            Extension methods and utilities for instantiating SDCA trainer estimators inside statically typed pipelines.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.SdcaStatic.PredictSdcaRegression(Microsoft.ML.Data.StaticPipe.Runtime.Scalar{System.Single},Microsoft.ML.Data.StaticPipe.Runtime.Vector{System.Single},Microsoft.ML.Data.StaticPipe.Runtime.Scalar{System.Single},System.Nullable{System.Single},System.Nullable{System.Single},System.Nullable{System.Int32},Microsoft.ML.Runtime.ISupportSdcaRegressionLoss,System.Action{Microsoft.ML.Runtime.Learners.LinearRegressionPredictor})">
+            <summary>
+            Predict a target using a linear regression model trained with the SDCA trainer.
+            </summary>
+            <param name="label">The label, or dependent variable.</param>
+            <param name="features">The features, or independent variables.</param>
+            <param name="weights">The optional example weights.</param>
+            <param name="l2Const">The L2 regularization hyperparameter.</param>
+            <param name="l1Threshold">The L1 regularization hyperparameter. Higher values will tend to lead to more sparse model.</param>
+            <param name="maxIterations">The maximum number of passes to perform over the data.</param>
+            <param name="loss">The custom loss, if unspecified will be <see cref="T:Microsoft.ML.Runtime.SquaredLossSDCARegressionLossFunction"/>.</param>
+            <param name="onFit">A delegate that is called every time the
+            <see cref="M:Microsoft.ML.Data.StaticPipe.Estimator`3.Fit(Microsoft.ML.Data.StaticPipe.DataView{`0})"/> method is called on the
+            <see cref="T:Microsoft.ML.Data.StaticPipe.Estimator`3"/> instance created out of this. This delegate will receive
+            the linear model that was trained.  Note that this action cannot change the result in any way; it is only a way for the caller to
+            be informed about what was learnt.</param>
+            <returns>The predicted output.</returns>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.SdcaStatic.Sdca(Microsoft.ML.Runtime.Training.BinaryClassificationContext.BinaryClassificationTrainers,Microsoft.ML.Data.StaticPipe.Runtime.Scalar{System.Boolean},Microsoft.ML.Data.StaticPipe.Runtime.Vector{System.Single},Microsoft.ML.Data.StaticPipe.Runtime.Scalar{System.Single},System.Nullable{System.Single},System.Nullable{System.Single},System.Nullable{System.Int32},System.Action{Microsoft.ML.Runtime.Learners.LinearBinaryPredictor,Microsoft.ML.Runtime.Internal.Calibration.ParameterMixingCalibratedPredictor})">
+            <summary>
+            Predict a target using a linear binary classification model trained with the SDCA trainer, and log-loss.
+            </summary>
+            <param name="ctx">The binary classification context trainer object.</param>
+            <param name="label">The label, or dependent variable.</param>
+            <param name="features">The features, or independent variables.</param>
+            <param name="weights">The optional example weights.</param>
+            <param name="l2Const">The L2 regularization hyperparameter.</param>
+            <param name="l1Threshold">The L1 regularization hyperparameter. Higher values will tend to lead to more sparse model.</param>
+            <param name="maxIterations">The maximum number of passes to perform over the data.</param>
+            <param name="onFit">A delegate that is called every time the
+            <see cref="M:Microsoft.ML.Data.StaticPipe.Estimator`3.Fit(Microsoft.ML.Data.StaticPipe.DataView{`0})"/> method is called on the
+            <see cref="T:Microsoft.ML.Data.StaticPipe.Estimator`3"/> instance created out of this. This delegate will receive
+            the linear model that was trained, as well as the calibrator on top of that model. Note that this action cannot change the
+            result in any way; it is only a way for the caller to be informed about what was learnt.</param>
+            <returns>The set of output columns including in order the predicted binary classification score (which will range
+            from negative to positive infinity), the calibrated prediction (from 0 to 1), and the predicted label.</returns>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.SdcaStatic.Sdca(Microsoft.ML.Runtime.Training.BinaryClassificationContext.BinaryClassificationTrainers,Microsoft.ML.Data.StaticPipe.Runtime.Scalar{System.Boolean},Microsoft.ML.Data.StaticPipe.Runtime.Vector{System.Single},Microsoft.ML.Runtime.ISupportSdcaClassificationLoss,Microsoft.ML.Data.StaticPipe.Runtime.Scalar{System.Single},System.Nullable{System.Single},System.Nullable{System.Single},System.Nullable{System.Int32},System.Action{Microsoft.ML.Runtime.Learners.LinearBinaryPredictor})">
+            <summary>
+            Predict a target using a linear binary classification model trained with the SDCA trainer, and a custom loss.
+            Note that because we cannot be sure that all loss functions will produce naturally calibrated outputs, setting
+            a custom loss function will not produce a calibrated probability column.
+            </summary>
+            <param name="ctx">The binary classification context trainer object.</param>
+            <param name="label">The label, or dependent variable.</param>
+            <param name="features">The features, or independent variables.</param>
+            /// <param name="loss">The custom loss.</param>
+            <param name="weights">The optional example weights.</param>
+            <param name="l2Const">The L2 regularization hyperparameter.</param>
+            <param name="l1Threshold">The L1 regularization hyperparameter. Higher values will tend to lead to more sparse model.</param>
+            <param name="maxIterations">The maximum number of passes to perform over the data.</param>
+            <param name="onFit">A delegate that is called every time the
+            <see cref="M:Microsoft.ML.Data.StaticPipe.Estimator`3.Fit(Microsoft.ML.Data.StaticPipe.DataView{`0})"/> method is called on the
+            <see cref="T:Microsoft.ML.Data.StaticPipe.Estimator`3"/> instance created out of this. This delegate will receive
+            the linear model that was trained, as well as the calibrator on top of that model. Note that this action cannot change the
+            result in any way; it is only a way for the caller to be informed about what was learnt.</param>
+            <returns>The set of output columns including in order the predicted binary classification score (which will range
+            from negative to positive infinity), and the predicted label.</returns>
+            <seealso cref="M:Microsoft.ML.Runtime.Learners.SdcaStatic.Sdca(Microsoft.ML.Runtime.Training.BinaryClassificationContext.BinaryClassificationTrainers,Microsoft.ML.Data.StaticPipe.Runtime.Scalar{System.Boolean},Microsoft.ML.Data.StaticPipe.Runtime.Vector{System.Single},Microsoft.ML.Data.StaticPipe.Runtime.Scalar{System.Single},System.Nullable{System.Single},System.Nullable{System.Single},System.Nullable{System.Int32},System.Action{Microsoft.ML.Runtime.Learners.LinearBinaryPredictor,Microsoft.ML.Runtime.Internal.Calibration.ParameterMixingCalibratedPredictor})"/>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.SdcaStatic.PredictSdcaClassification``1(Microsoft.ML.Data.StaticPipe.Runtime.Key{System.UInt32,``0},Microsoft.ML.Data.StaticPipe.Runtime.Vector{System.Single},Microsoft.ML.Runtime.ISupportSdcaClassificationLoss,Microsoft.ML.Data.StaticPipe.Runtime.Scalar{System.Single},System.Nullable{System.Single},System.Nullable{System.Single},System.Nullable{System.Int32},System.Action{Microsoft.ML.Runtime.Learners.MulticlassLogisticRegressionPredictor})">
+            <summary>
+            Predict a target using a linear multiclass classification model trained with the SDCA trainer.
+            </summary>
+            <param name="label">The label, or dependent variable.</param>
+            <param name="features">The features, or independent variables.</param>
+            /// <param name="loss">The custom loss.</param>
+            <param name="weights">The optional example weights.</param>
+            <param name="l2Const">The L2 regularization hyperparameter.</param>
+            <param name="l1Threshold">The L1 regularization hyperparameter. Higher values will tend to lead to more sparse model.</param>
+            <param name="maxIterations">The maximum number of passes to perform over the data.</param>
+            <param name="onFit">A delegate that is called every time the
+            <see cref="M:Microsoft.ML.Data.StaticPipe.Estimator`3.Fit(Microsoft.ML.Data.StaticPipe.DataView{`0})"/> method is called on the
+            <see cref="T:Microsoft.ML.Data.StaticPipe.Estimator`3"/> instance created out of this. This delegate will receive
+            the linear model that was trained. Note that this action cannot change the
+            result in any way; it is only a way for the caller to be informed about what was learnt.</param>
+            <returns>The set of output columns including in order the predicted per-class likelihoods (between 0 and 1, and summing up to 1), and the predicted label.</returns>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Learners.RandomTrainer">
+            <summary>
+            A trainer that trains a predictor that returns random values
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.RandomTrainer.#ctor(Microsoft.ML.Runtime.IHostEnvironment)">
+            <summary>
+            Initializes RandomTrainer object.
+            </summary>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Learners.RandomPredictor">
+            <summary>
+            The predictor implements the Predict() interface. The predictor returns a
+             uniform random probability and classification assignment.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.RandomPredictor.#ctor(Microsoft.ML.Runtime.IHostEnvironment,Microsoft.ML.Runtime.Model.ModelLoadContext)">
+            <summary>
+            Load the predictor from the binary format.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.RandomPredictor.SaveCore(Microsoft.ML.Runtime.Model.ModelSaveContext)">
+            <summary>
+            Save the predictor in the binary format.
+            </summary>
+            <param name="ctx"></param>
+        </member>
+        <member name="T:Microsoft.ML.Runtime.Learners.PriorTrainer">
+            <summary>
+            Learns the prior distribution for 0/1 class labels and just outputs that.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.PriorTrainer.#ctor(Microsoft.ML.Runtime.IHost,System.String,System.String)">
+            <summary>
+            Initializes PriorTrainer object.
+            </summary>
+        </member>
+        <member name="P:Microsoft.ML.Runtime.Learners.StochasticTrainerBase`2.ShuffleData">
+            <summary>
+            Whether data is to be shuffled every epoch.
+            </summary>
+        </member>
+        <member name="M:Microsoft.ML.Runtime.Learners.StochasticTrainerBase`2.PrepareDataFromTrainingExamples(Microsoft.ML.Runtime.IChannel,Microsoft.ML.Runtime.Data.RoleMappedData,System.Int32@)">
+            <summary>
+            This method ensures that the data meets the requirements of this trainer and its
+            subclasses, injects necessary transforms, and throws if it couldn't meet them.
+            </summary>
+            <param name="ch">The channel</param>
+            <param name="examples">The training examples</param>
+            <param name="weightSetCount">Gets the length of weights and bias array. For binary classification and regression,
+            this is 1. For multi-class classification, this equals the number of classes on the label.</param>
+            <returns>A potentially modified version of <paramref name="examples"/></returns>
+        </member>
+    </members>
+</doc>
